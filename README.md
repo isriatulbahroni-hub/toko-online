@@ -1,13 +1,13 @@
-# toko-online
+# Garery Songket Sari Melati
 
-Website toko online bergaya Shopee. **Tahap 1: website, 1 penjual. Aplikasi (Flutter) menyusul.**
+Website toko online songket bergaya Shopee. **Tahap 1: website, 1 penjual. Aplikasi (Flutter) menyusul.**
 
 Struktur data sudah multi-penjual, tetapi database mengunci hanya 1 penjual aktif (`hanya_satu_penjual_aktif`). Untuk membuka marketplace nanti, hapus indeks itu.
 
 ## Isi repo
 
 - `index.html`: etalase (daftar produk, detail, keranjang, checkout). Satu file, tanpa build.
-- `config.js`: isi URL dan anon key Supabase, serta nomor WhatsApp penjual.
+- `config.js`: nama toko, URL dan anon key Supabase, serta nomor WhatsApp penjual.
 - `supabase/migrations/0001_init.sql`: tabel, RLS, dan fungsi `buat_pesanan` (harga dan stok dihitung di server).
 - `docs/RENCANA.md`: rencana tahap.
 - `docker-compose.yml`, `scripts/setup.sh`: untuk jalur Mercur (tahap marketplace besar), belum dipakai.
