@@ -1,69 +1,79 @@
 <!doctype html>
-<html lang='id'><head><meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1'><title>Toko Online</title>
+<html lang='id'><head><meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1,viewport-fit=cover'><meta name='theme-color' content='#ee4d2d'><title>Toko Online</title>
 <meta name='description' content='Toko online: belanja berbagai produk pilihan, stok terlihat langsung, pesanan mudah dipantau.'>
 <meta property='og:title' content='Toko Online'><meta property='og:type' content='website'>
-<link rel='icon' href='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22%3E%3Ctext y=%22.9em%22 font-size=%2290%22%3E%F0%9F%A7%B5%3C/text%3E%3C/svg%3E'>
+<link rel='icon' href='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22%3E%3Ctext y=%22.9em%22 font-size=%2290%22%3E%F0%9F%9B%8D%EF%B8%8F%3C/text%3E%3C/svg%3E'>
 <style>
-:root{--o:#ee4d2d;--bg:#f5f5f5;--tx:#222;--mut:#757575;--bd:#e8e8e8}
+:root{--o:#ee4d2d;--bg:#f5f5f5;--tx:#222;--mut:#757575;--bd:#eee}
 *{box-sizing:border-box}
-body{margin:0;font:15px/1.45 system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--tx)}
+body{margin:0;font:14px/1.4 system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--tx);padding-bottom:calc(64px + env(safe-area-inset-bottom))}
 :focus-visible{outline:2px solid #1a73e8;outline-offset:2px}
-header{position:sticky;top:0;z-index:5;background:linear-gradient(#f53d2d,var(--o));display:flex;flex-wrap:wrap;align-items:center;gap:8px 16px;padding:10px 16px}
-header a{color:#fff;text-decoration:none;font-weight:600}
-#brand{font-size:20px}
-#cari{flex:1 1 260px;max-width:640px;display:flex;background:#fff;border-radius:4px;padding:3px}
+a{color:inherit}
+header{position:sticky;top:0;z-index:5;background:linear-gradient(#f53d2d,var(--o));padding:8px 12px;padding-top:calc(8px + env(safe-area-inset-top));display:flex;align-items:center;gap:14px}
+header>a{color:#fff;text-decoration:none;position:relative;font-size:24px;line-height:1}
+#cari{flex:1;display:flex;background:#fff;border-radius:8px;padding:2px;min-width:0}
 #cari input{flex:1;min-width:0;border:0;padding:8px 10px;font:inherit;background:none;outline:0}
-#cari button{padding:8px 18px}
-header nav{display:flex;flex-wrap:wrap;gap:6px 16px;margin-left:auto}
-main{max-width:1200px;margin:auto;padding:12px}
+#cari button{padding:6px 14px;border-radius:6px}
+.bdg{position:absolute;top:-6px;right:-9px;background:#fff;color:var(--o);border:1px solid var(--o);border-radius:9px;font:700 11px/16px system-ui;min-width:18px;height:18px;text-align:center;padding:0 4px;font-style:normal}
+main{max-width:960px;margin:auto;padding:0 10px 12px}
 h3{margin:16px 0 8px}
-button,.btn{background:var(--o);color:#fff;border:0;border-radius:4px;padding:10px 16px;font:inherit;cursor:pointer;text-decoration:none;display:inline-block}
+h3.jd{text-align:center;color:var(--o);margin:18px 0 10px}
+button,.btn{background:var(--o);color:#fff;border:0;border-radius:6px;padding:10px 16px;font:inherit;cursor:pointer;text-decoration:none;display:inline-block}
 button:disabled{opacity:.5}
 .line{background:#fff;color:var(--o);border:1px solid var(--o)}
 .fm{max-width:420px;margin:auto}
 .fm input,.fm textarea,.fm select{width:100%;padding:10px;margin:4px 0 10px;border:1px solid #ccc;border-radius:6px;font:inherit}
 .fm a{color:var(--o)}
 #err{color:#c0392b}.ok{color:#1e8449}
-.kolom{display:grid;grid-template-columns:210px minmax(0,1fr) 250px;gap:12px;align-items:start}
-.kolom.dua{grid-template-columns:210px minmax(0,1fr)}
-@media(max-width:960px){.kolom,.kolom.dua{grid-template-columns:minmax(0,1fr)}.kat div{display:flex;gap:8px;overflow-x:auto;margin-top:8px}.kat a{white-space:nowrap;border:1px solid var(--bd);border-radius:16px}}
-.box{background:#fff;border-radius:6px;padding:12px;margin-bottom:12px}
-.kat a{display:block;padding:8px 10px;text-decoration:none;color:inherit;border-radius:4px}
-.kat a.on,.kat a:hover{color:var(--o);background:#fff3f0}
-.ban{background:linear-gradient(120deg,#2b2140,#5b2a86 55%,var(--o));color:#fff;border-radius:6px;padding:28px 24px 36px;min-height:190px;position:relative;margin-bottom:12px}
-.sl{display:none;max-width:520px}.sl.on{display:block}
-.sl h2{font-size:clamp(22px,3.4vw,34px);line-height:1.15;margin:0 0 8px}.sl p{margin:0 0 16px;opacity:.9}
-.dots{position:absolute;left:24px;bottom:12px;display:flex;gap:6px}
-.dots i{width:22px;height:5px;background:#fff6;border-radius:3px;cursor:pointer}.dots i.on{background:#fff}
-.ung{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px}
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
-.card{display:block;background:#fff;border-radius:6px;overflow:hidden;text-decoration:none;color:inherit;border:1px solid transparent}
+.box{background:#fff;border-radius:10px;padding:12px;margin:10px 0}
+.oh{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.oh a{color:var(--mut);text-decoration:none;font-size:13px}
+.stat{display:grid;grid-template-columns:repeat(4,1fr);text-align:center;margin-top:8px}
+.stat a{text-decoration:none}.stat b{display:block;font-size:20px;color:var(--o)}.stat small{color:var(--mut)}
+.ikon{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none}
+.ikon.wrap{flex-wrap:wrap}
+.ikon a{flex:0 0 74px;text-align:center;text-decoration:none;font-size:12px;line-height:1.2}
+.ikon i{display:grid;place-items:center;width:50px;height:50px;border-radius:14px;margin:0 auto 6px;color:#fff;font:700 20px system-ui}
+.ban{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;border-radius:10px;margin:10px 0}
+.sl{flex:0 0 100%;scroll-snap-align:start;padding:22px 18px;min-height:150px;color:#fff;background:linear-gradient(120deg,#2b2140,#5b2a86 55%,var(--o))}
+.sl h2{font-size:clamp(20px,5vw,30px);line-height:1.15;margin:0 0 6px;max-width:440px}.sl p{margin:0 0 14px;opacity:.9}
+.ung{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+.dua{display:grid;grid-template-columns:1fr 1fr;gap:10px}.dua .box{margin:0}
+.tt{display:block;color:var(--o);font-weight:700;text-decoration:none;margin-bottom:8px}
+.pv{display:grid;grid-template-columns:1fr 1fr;gap:6px}.pv a{text-decoration:none}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:8px}
+.card{display:block;background:#fff;border-radius:8px;overflow:hidden;text-decoration:none;color:inherit;border:1px solid transparent}
 .card:hover{border-color:var(--o)}
 .im{position:relative}
 .im img,.ph{width:100%;aspect-ratio:1;object-fit:cover;background:#ddd;display:block}
 .dsk{position:absolute;top:0;right:0;background:#fdd835;color:var(--o);font-size:12px;padding:2px 6px}
 .habis{position:absolute;inset:0;background:#fffa;display:grid;place-items:center;font-weight:600}
 .bd{padding:8px}
-.nm{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;min-height:2.9em}
+.nm{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;min-height:2.8em}
 .price{color:var(--o);font-weight:600}.price s{color:var(--mut);font-weight:400;font-size:12px}
-.det{display:grid;grid-template-columns:minmax(0,420px) 1fr;gap:16px;background:#fff;padding:16px;border-radius:6px}
+.det{display:grid;grid-template-columns:minmax(0,420px) 1fr;gap:16px;background:#fff;padding:16px;border-radius:10px}
 @media(max-width:700px){.det{grid-template-columns:1fr}}
 .big{font-size:24px;margin:8px 0}
 .desk{white-space:pre-line}
-.row{display:flex;justify-content:space-between;align-items:center;gap:8px;background:#fff;padding:10px;border-radius:6px;margin-bottom:8px}
+.row{display:flex;justify-content:space-between;align-items:center;gap:8px;background:#fff;padding:10px;border-radius:8px;margin-bottom:8px}
 .info{list-style:none;padding:0;margin:8px 0 0}.info li{padding:6px 0;border-top:1px solid var(--bd)}
-.chips{display:flex;gap:8px;overflow-x:auto;margin-bottom:12px}
-.chips button{background:#fff;color:var(--tx);border:1px solid var(--bd);border-radius:16px;padding:6px 14px;white-space:nowrap}
-.chips button.on{border-color:var(--o);color:var(--o)}
-.oh,.oi{display:flex;justify-content:space-between;gap:8px;padding:6px 0}
-.oi{border-top:1px solid var(--bd)}
+.chips{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;margin:10px 0}
+.chips a,.chips button{background:#fff;color:var(--tx);border:1px solid var(--bd);border-radius:16px;padding:6px 14px;white-space:nowrap;text-decoration:none;font-size:14px}
+.chips .on{border-color:var(--o);color:var(--o)}
+.oi{display:flex;justify-content:space-between;gap:8px;padding:6px 0;border-top:1px solid var(--bd)}
+.mn a{display:block;padding:12px 0;border-top:1px solid var(--bd);text-decoration:none}.mn a:first-child{border:0}
 .msg{padding:20px;text-align:center}
-footer{text-align:center;color:var(--mut);padding:24px 12px;font-size:13px}
-footer a{color:var(--o)}
+footer{text-align:center;color:var(--mut);padding:16px 12px;font-size:13px}
+#tab{position:fixed;bottom:0;left:0;right:0;z-index:6;display:flex;background:#fff;border-top:1px solid var(--bd);padding-bottom:env(safe-area-inset-bottom)}
+#tab a{flex:1;text-align:center;padding:6px 0;color:var(--mut);text-decoration:none;font-size:11px;position:relative}
+#tab a b{display:block;font-size:20px;font-weight:400;line-height:1.3}
+#tab a.on{color:var(--o)}
+#tab .bdg{top:0;right:calc(50% - 26px)}
 </style></head><body>
-<header><a id='brand' href='#/'>Toko Online</a><form id='cari'><input id='q' placeholder='Cari produk' aria-label='Cari produk' maxlength='80'><button>Cari</button></form><nav><a href='#/keranjang' id='kc'>Keranjang (0)</a><a href='#/pesanan' id='ps' hidden>Pesanan saya</a><a href='#/masuk' id='ak'>Masuk</a></nav></header>
+<header><form id='cari'><input id='q' placeholder='Cari produk' aria-label='Cari produk' maxlength='80'><button>Cari</button></form><a href='#/keranjang' aria-label='Keranjang'>&#128722;<i class='bdg kbd' hidden></i></a><a id='wa' href='#/info' aria-label='Chat penjual'>&#128172;</a></header>
 <main id='app'></main>
 <footer id='ft'></footer>
+<nav id='tab'><a href='#/' data-t='b'><b>&#127968;</b>Beranda</a><a href='#/kategori' data-t='k'><b>&#9776;</b>Kategori</a><a href='#/keranjang' data-t='c'><b>&#128722;</b>Keranjang<i class='bdg kbd' hidden></i></a><a href='#/pesanan' data-t='p'><b>&#128230;</b>Pesanan</a><a href='#/saya' data-t='s'><b>&#128100;</b>Saya</a></nav>
 <script src='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js'></script>
 <script src='config.js'></script>
 <script>
@@ -74,18 +84,17 @@ const db=(typeof supabase!=='undefined'&&C.SUPABASE_URL)?supabase.createClient(C
 let user=null,KAT=[],PS=[],fp='semua',tm=null,SELLER={},ONG=[],tokoOk=false;
 const ck=()=>user?'cart:'+user.id:null;
 const cart={get(){try{return ck()?JSON.parse(localStorage.getItem(ck())||'{}'):{}}catch(e){return{}}},set(c){try{if(ck())localStorage.setItem(ck(),JSON.stringify(c))}catch(e){}upd()}};
-function uiAuth(){const a=$('#ak');a.textContent=user?'Keluar':'Masuk';a.href=user?'#/keluar':'#/masuk';$('#ps').hidden=!user}
 function perluMasuk(back){try{sessionStorage.setItem('back',back)}catch(e){}location.hash='#/masuk'}
 const galat=m=>({'Invalid login credentials':'Email atau kata sandi salah','Email not confirmed':'Cek email Anda dan klik tautan konfirmasi dulu','User already registered':'Email sudah terdaftar, silakan masuk'}[m]||m);
-function upd(){$('#kc').textContent='Keranjang ('+Object.values(cart.get()).reduce((s,x)=>s+x.qty,0)+')'}
+function upd(){const n=Object.values(cart.get()).reduce((s,x)=>s+x.qty,0);document.querySelectorAll('.kbd').forEach(e=>{e.textContent=n;e.hidden=!n})}
 const STS={baru:['Menunggu pembayaran','#b9770e'],dibayar:['Dibayar','#1e8449'],dikirim:['Dikirim','#2471a3'],selesai:['Selesai','#555'],batal:['Dibatalkan','#c0392b']};
 
 const namaToko=()=>SELLER.name||C.NAMA||'Toko Online';
 function terapkanNama(){
- const n=namaToko();
+ const n=namaToko(),w=$('#wa');
  document.title=n;
- $('#brand').textContent=n;
- $('#ft').innerHTML=esc(n)+(C.WA?`<br><a href='https://wa.me/${esc(C.WA)}'>Hubungi penjual via WhatsApp</a>`:'')+`<br><a href='#/info'>Kebijakan dan info toko</a><br>&copy; ${new Date().getFullYear()}`;
+ if(C.WA){w.href='https://wa.me/'+C.WA;w.target='_blank';w.rel='noopener'}
+ $('#ft').innerHTML=esc(n)+`<br>&copy; ${new Date().getFullYear()}`;
 }
 const img=p=>p.image_url?`<img src='${esc(p.image_url)}' alt='${esc(p.name)}' loading='lazy'>`:`<div class='ph'></div>`;
 const diskon=p=>p.harga_coret>p.price?Math.round((1-p.price/p.harga_coret)*100):0;
@@ -129,37 +138,44 @@ async function ambilProduk(f){
  return p.data.map(x=>({...x,terjual:T[x.id]||0}));
 }
 
-function rangka(tengah,aktif,kanan){
- return `<div class='kolom${kanan?'':' dua'}'><nav class='kat box'><b>Kategori</b><div><a class='${aktif==='semua'?'on':''}' href='#/semua'>Semua produk</a>${KAT.map(k=>`<a class='${aktif===k.id?'on':''}' href='#/k/${k.id}'>${esc(k.nama)}</a>`).join('')}</div></nav><section>${tengah}</section>${kanan?`<aside>${kanan}</aside>`:''}</div>`;
+const WR=['#ee4d2d','#2d9cee','#27ae60','#8e44ad','#f39c12','#16a085'];
+function ikon(wrap){
+ return `<div class='box ikon${wrap?' wrap':''}'><a href='#/semua'><i style='background:${WR[0]}'>&#9733;</i>Semua</a>${KAT.map((k,i)=>`<a href='#/k/${k.id}'><i style='background:${WR[(i+1)%6]}'>${esc(k.nama.charAt(0).toUpperCase())}</i>${esc(k.nama)}</a>`).join('')}</div>`;
 }
+const chipKat=a=>`<div class='chips'><a class='${a==='semua'?'on':''}' href='#/semua'>Semua</a>${KAT.map(k=>`<a class='${a===k.id?'on':''}' href='#/k/${k.id}'>${esc(k.nama)}</a>`).join('')}</div>`;
 function banner(){
  const B=C.BANNER&&C.BANNER.length?C.BANNER:[{judul:namaToko(),sub:'',tombol:'Lihat produk',link:'#/semua'}];
- return `<div class='ban' id='ban'>${B.map((b,i)=>`<div class='sl${i?'':' on'}'><h2>${esc(b.judul)}</h2><p>${esc(b.sub||'')}</p><a class='btn' href='${esc(b.link||'#/semua')}'>${esc(b.tombol||'Lihat produk')}</a></div>`).join('')}${B.length>1?`<div class='dots'>${B.map((_,i)=>`<i data-d='${i}' class='${i?'':'on'}'></i>`).join('')}</div>`:''}</div>`;
+ return `<div class='ban' id='ban'>${B.map(b=>`<div class='sl'><h2>${esc(b.judul)}</h2><p>${esc(b.sub||'')}</p><a class='btn' href='${esc(b.link||'#/semua')}'>${esc(b.tombol||'Lihat produk')}</a></div>`).join('')}</div>`;
 }
 function putarBanner(){
- const el=$('#ban');if(!el)return;
- const s=[...el.querySelectorAll('.sl')],d=[...el.querySelectorAll('.dots i')];if(s.length<2)return;
- let n=0;const go=k=>{n=(k+s.length)%s.length;s.forEach((x,i)=>x.classList.toggle('on',i===n));d.forEach((x,i)=>x.classList.toggle('on',i===n))};
- d.forEach((x,i)=>{x.onclick=()=>go(i)});
- if(!matchMedia('(prefers-reduced-motion:reduce)').matches)tm=setInterval(()=>go(n+1),5000);
+ const el=$('#ban');if(!el||el.children.length<2||matchMedia('(prefers-reduced-motion:reduce)').matches)return;
+ let n=0;tm=setInterval(()=>{n=(n+1)%el.children.length;el.scrollTo({left:n*el.clientWidth,behavior:'smooth'})},5000);
 }
-function panelKanan(){
- const nama=user?esc((user.user_metadata||{}).nama||user.email):'';
- const akun=user?`<div class='box'><b>Halo, ${nama}</b><p><a href='#/pesanan'>Pesanan saya</a><br><a href='#/keranjang'>Keranjang</a></p></div>`:`<div class='box'><b>Selamat datang</b><p>Masuk untuk membeli dan memantau pesanan.</p><a class='btn' href='#/masuk'>Masuk</a> <a class='btn line' href='#/daftar'>Daftar</a></div>`;
- const info=(C.PENGUMUMAN||[]).map(x=>`<li>${esc(x.judul)}${x.tgl?`<br><small>${esc(x.tgl)}</small>`:''}</li>`).join('');
- return akun+(info?`<div class='box'><b>Pengumuman</b><ul class='info'>${info}</ul></div>`:'');
+async function statUser(){
+ const nama=esc((user.user_metadata||{}).nama||user.email);
+ const r=await db.from('orders').select('status').eq('buyer_id',user.id),c={};
+ (r.data||[]).forEach(o=>{c[o.status]=(c[o.status]||0)+1});
+ const s=(k,l)=>`<a href='#/pesanan/${k}'><b>${c[k]||0}</b><small>${l}</small></a>`;
+ return `<div class='box'><div class='oh'><b>Halo, ${nama}</b><a href='#/pesanan'>Pesanan saya &rsaquo;</a></div><div class='stat'>${s('baru','Belum bayar')}${s('dibayar','Diproses')}${s('dikirim','Dikirim')}${s('selesai','Selesai')}</div></div>`;
 }
+const sapa=()=>`<div class='box oh'><span><b>${esc(namaToko())}</b><br><small>Masuk untuk belanja dan memantau pesanan</small></span><span><a class='btn' href='#/masuk' style='color:#fff'>Masuk</a> <a class='btn line' href='#/daftar' style='color:var(--o)'>Daftar</a></span></div>`;
+const mini=ps=>ps.slice(0,2).map(p=>`<a href='#/p/${p.id}'>${img(p)}<small class='price'>${rp(p.price)}</small></a>`).join('');
 
 async function beranda(){
- const ps=await ambilProduk({});
- const laris=ps.filter(x=>x.terjual>0).sort((a,b)=>b.terjual-a.terjual).slice(0,6);
+ const[ps,st]=await Promise.all([ambilProduk({}),user?statUser():sapa()]);
+ const laris=ps.filter(x=>x.terjual>0).sort((a,b)=>b.terjual-a.terjual);
  const ung=(C.KEUNGGULAN||[]).map(u=>`<div><b>${esc(u[0])}</b><br><small>${esc(u[1]||'')}</small></div>`).join('');
- app.innerHTML=rangka(banner()+(ung?`<div class='box ung'>${ung}</div>`:'')+(laris.length?`<h3>Produk terlaris</h3><div class='grid'>${laris.map(kartu).join('')}</div>`:'')+`<h3>Produk terbaru</h3>`+gridHtml(ps),'',panelKanan());
+ const info=(C.PENGUMUMAN||[]).map(x=>`<li>${esc(x.judul)}${x.tgl?` <small>${esc(x.tgl)}</small>`:''}</li>`).join('');
+ app.innerHTML=st+ikon()+banner()+(ps.length?`<div class='dua'><div class='box'><a class='tt' href='#/semua'>Terlaris &rsaquo;</a><div class='pv'>${mini(laris.length?laris:ps.slice(2))}</div></div><div class='box'><a class='tt' href='#/semua'>Terbaru &rsaquo;</a><div class='pv'>${mini(ps)}</div></div></div>`:'')+(ung?`<div class='box ung'>${ung}</div>`:'')+(info?`<div class='box'><b>Pengumuman</b><ul class='info'>${info}</ul></div>`:'')+`<h3 class='jd'>Produk untuk Anda</h3>`+gridHtml(ps);
  putarBanner();
 }
 async function daftar(f,judul,aktif){
  const ps=await ambilProduk(f);
- app.innerHTML=rangka(`<h3>${esc(judul)}</h3>`+(ps.length?gridHtml(ps):`<p class='msg'>Produk tidak ditemukan.</p>`),aktif);
+ app.innerHTML=chipKat(aktif)+`<h3>${esc(judul)}</h3>`+(ps.length?gridHtml(ps):`<p class='msg'>Produk tidak ditemukan.</p>`);
+}
+function kategoriView(){app.innerHTML=`<h3>Kategori</h3>`+ikon(true)}
+function sayaView(){
+ app.innerHTML=(user?`<div class='box'><b>${esc((user.user_metadata||{}).nama||user.email)}</b><br><small>${esc(user.email)}</small></div><div class='box mn'><a href='#/pesanan'>Pesanan saya</a><a href='#/keranjang'>Keranjang</a><a href='#/info'>Kebijakan dan info toko</a><a href='#/keluar'>Keluar</a></div>`:`<div class='box'><b>Selamat datang</b><p>Masuk untuk membeli dan memantau pesanan.</p><a class='btn' href='#/masuk'>Masuk</a> <a class='btn line' href='#/daftar'>Daftar</a></div><div class='box mn'><a href='#/info'>Kebijakan dan info toko</a></div>`);
 }
 async function detail(id){
  const{data:p,error}=await db.from('products').select('*').eq('id',id).single();
@@ -184,7 +200,7 @@ function authView(dft){
   const r=dft?await db.auth.signUp({...cred,options:{data:{nama:f.elements.n.value.trim()}}}):await db.auth.signInWithPassword(cred);
   if(r.error){$('#err').textContent=galat(r.error.message);btn.disabled=false;return}
   if(!r.data.session){f.innerHTML=`<p class='ok'>Pendaftaran berhasil. Cek email Anda dan klik tautan konfirmasi, lalu <a href='#/masuk'>masuk</a>.</p>`;return}
-  user=r.data.session.user;uiAuth();upd();
+  user=r.data.session.user;upd();
   let back='#/';try{back=sessionStorage.getItem('back')||'#/';sessionStorage.removeItem('back')}catch(x){}
   location.hash=back;
  };
@@ -253,9 +269,14 @@ app.onchange=async e=>{
 };
 $('#cari').onsubmit=e=>{e.preventDefault();const q=$('#q').value.trim();location.hash=q?'#/cari/'+encodeURIComponent(q):'#/semua'};
 
+function tandaiTab(h){
+ const t=h==='/'?'b':(h==='/semua'||h==='/kategori'||h.startsWith('/k/'))?'k':(h==='/keranjang'||h==='/checkout')?'c':h.startsWith('/pesanan')?'p':(h==='/saya'||h==='/masuk'||h==='/daftar')?'s':'';
+ document.querySelectorAll('#tab a').forEach(a=>a.classList.toggle('on',a.dataset.t===t));
+}
 async function route(){
  clearInterval(tm);
  const h=location.hash.slice(1)||'/';
+ tandaiTab(h);upd();
  if(!db){app.innerHTML=`<p class='msg'>Isi config.js dengan URL dan anon key Supabase.</p>`;return}
  app.innerHTML=`<p class='msg'>Memuat...</p>`;scrollTo(0,0);
  if(h.indexOf('access_token')>=0||h.indexOf('type=recovery')>=0)return;
@@ -265,27 +286,29 @@ async function route(){
   if(!h.startsWith('/cari/'))$('#q').value='';
   if(h==='/')await beranda();
   else if(h==='/semua')await daftar({},'Semua produk','semua');
+  else if(h==='/kategori')kategoriView();
+  else if(h==='/saya')sayaView();
   else if(h.startsWith('/k/')){const id=h.slice(3);await daftar({kat:id},namaKat(id)||'Kategori',id)}
   else if(h.startsWith('/cari/')){const q=decodeURIComponent(h.slice(6));$('#q').value=q;await daftar({cari:q},'Hasil pencarian: '+q,'')}
   else if(h.startsWith('/p/'))await detail(h.slice(3));
   else if(h==='/masuk'||h==='/daftar'){if(user)location.hash='#/';else authView(h==='/daftar')}
-  else if(h==='/keluar'){await db.auth.signOut();user=null;uiAuth();upd();location.hash='#/'}
+  else if(h==='/keluar'){await db.auth.signOut();user=null;upd();location.hash='#/'}
   else if(h==='/info')await infoToko();
   else if(h==='/lupa')lupaView();
   else if(h==='/reset')resetView();
-  else if(h==='/keranjang'||h==='/checkout'||h==='/pesanan'){
+  else if(h==='/keranjang'||h==='/checkout'||h.startsWith('/pesanan')){
    if(!user)perluMasuk('#'+h);
    else if(h==='/keranjang')cartView();
    else if(h==='/checkout')await checkout();
-   else{fp='semua';await pesananSaya()}
+   else{const s=h.split('/')[2];fp=STS[s]?s:'semua';await pesananSaya()}
   }
   else app.innerHTML=`<p class='msg'>Halaman tidak ditemukan.</p>`;
  }catch(e){app.innerHTML=`<p class='msg'>Gagal: ${esc(e.message)}</p>`}
 }
 (async()=>{
  if(db){const r=await db.auth.getSession();user=r.data.session?r.data.session.user:null}
- if(db)db.auth.onAuthStateChange((ev,ses)=>{user=ses?ses.user:null;uiAuth();upd();if(ev==='PASSWORD_RECOVERY')location.hash='#/reset'});
+ if(db)db.auth.onAuthStateChange((ev,ses)=>{user=ses?ses.user:null;upd();if(ev==='PASSWORD_RECOVERY')location.hash='#/reset'});
  terapkanNama();
- uiAuth();upd();addEventListener('hashchange',route);route();
+ upd();addEventListener('hashchange',route);route();
 })();
 </script></body></html>
