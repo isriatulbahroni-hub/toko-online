@@ -7,18 +7,20 @@ Struktur data sudah multi-penjual, tetapi database mengunci hanya 1 penjual akti
 ## Isi repo
 
 - `index.html`: etalase (daftar produk, detail, keranjang, checkout). Satu file, tanpa build.
+- `admin.html`: panel penjual (login, tambah/ubah produk dengan foto, kelola status pesanan).
 - `config.js`: nama toko, URL dan anon key Supabase, serta nomor WhatsApp penjual.
-- `supabase/migrations/0001_init.sql`: tabel, RLS, dan fungsi `buat_pesanan` (harga dan stok dihitung di server).
+- `supabase/migrations/`: `0001_init.sql` (tabel, RLS, fungsi `buat_pesanan`) dan `0002_admin.sql` (hak akses penjual, penyimpanan foto).
 - `docs/RENCANA.md`: rencana tahap.
 - `docker-compose.yml`, `scripts/setup.sh`: untuk jalur Mercur (tahap marketplace besar), belum dipakai.
 
 ## Menjalankan
 
-1. Buat proyek Supabase, jalankan isi `0001_init.sql` di SQL Editor.
-2. Jalankan contoh data awal (bagian komentar di akhir file SQL).
-3. Isi `config.js`.
-4. Deploy repo ini ke Vercel atau GitHub Pages (situs statis, tanpa build).
+1. Proyek Supabase sudah dibuat dan kedua migrasi sudah diterapkan.
+2. Buat akun admin di Supabase (Authentication, Users, Add user), lalu tautkan ke toko dengan perintah di akhir `0002_admin.sql`.
+3. Isi `WA` di `config.js` (nomor penjual, format 628xxx).
+4. Deploy repo ini ke Vercel atau GitHub Pages (situs statis, tanpa build). Admin ada di `/admin.html`.
 
 ## Belum ada
 
-- Pembayaran online, ongkir, halaman admin (sementara kelola produk dan pesanan lewat Table Editor Supabase), upload foto (pakai URL gambar).
+- Pembayaran online dan ongkir (sementara konfirmasi via WhatsApp).
+- Stok tidak otomatis kembali saat pesanan dibatalkan.
