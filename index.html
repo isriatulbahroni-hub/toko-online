@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang='id'><head><meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1'><title>Toko Online</title>
-<meta name='description' content='Toko songket online: kain songket, selendang, dan busana tenun.'>
-<meta property='og:title' content='Garery Songket Sari Melati'><meta property='og:type' content='website'>
+<meta name='description' content='Toko online: belanja berbagai produk pilihan, stok terlihat langsung, pesanan mudah dipantau.'>
+<meta property='og:title' content='Toko Online'><meta property='og:type' content='website'>
 <link rel='icon' href='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22%3E%3Ctext y=%22.9em%22 font-size=%2290%22%3E%F0%9F%A7%B5%3C/text%3E%3C/svg%3E'>
 <style>
 :root{--o:#ee4d2d;--bg:#f5f5f5;--tx:#222;--mut:#757575;--bd:#e8e8e8}
@@ -71,7 +71,7 @@ const C=window.CFG||{},$=s=>document.querySelector(s),app=$('#app');
 const rp=n=>'Rp'+Number(n).toLocaleString('id-ID');
 const esc=s=>String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/'/g,'&#39;').split(String.fromCharCode(34)).join('&quot;');
 const db=(typeof supabase!=='undefined'&&C.SUPABASE_URL)?supabase.createClient(C.SUPABASE_URL,C.SUPABASE_ANON_KEY):null;
-let user=null,KAT=[],PS=[],fp='semua',tm=null,SELLER={},ONG=[];
+let user=null,KAT=[],PS=[],fp='semua',tm=null,SELLER={},ONG=[],tokoOk=false;
 const ck=()=>user?'cart:'+user.id:null;
 const cart={get(){try{return ck()?JSON.parse(localStorage.getItem(ck())||'{}'):{}}catch(e){return{}}},set(c){try{if(ck())localStorage.setItem(ck(),JSON.stringify(c))}catch(e){}upd()}};
 function uiAuth(){const a=$('#ak');a.textContent=user?'Keluar':'Masuk';a.href=user?'#/keluar':'#/masuk';$('#ps').hidden=!user}
@@ -80,6 +80,13 @@ const galat=m=>({'Invalid login credentials':'Email atau kata sandi salah','Emai
 function upd(){$('#kc').textContent='Keranjang ('+Object.values(cart.get()).reduce((s,x)=>s+x.qty,0)+')'}
 const STS={baru:['Menunggu pembayaran','#b9770e'],dibayar:['Dibayar','#1e8449'],dikirim:['Dikirim','#2471a3'],selesai:['Selesai','#555'],batal:['Dibatalkan','#c0392b']};
 
+const namaToko=()=>SELLER.name||C.NAMA||'Toko Online';
+function terapkanNama(){
+ const n=namaToko();
+ document.title=n;
+ $('#brand').textContent=n;
+ $('#ft').innerHTML=esc(n)+(C.WA?`<br><a href='https://wa.me/${esc(C.WA)}'>Hubungi penjual via WhatsApp</a>`:'')+`<br><a href='#/info'>Kebijakan dan info toko</a><br>&copy; ${new Date().getFullYear()}`;
+}
 const img=p=>p.image_url?`<img src='${esc(p.image_url)}' alt='${esc(p.name)}' loading='lazy'>`:`<div class='ph'></div>`;
 const diskon=p=>p.harga_coret>p.price?Math.round((1-p.price/p.harga_coret)*100):0;
 const kartu=p=>`<a class='card' href='#/p/${p.id}'><div class='im'>${img(p)}${diskon(p)?`<b class='dsk'>-${diskon(p)}%</b>`:''}${p.stock<1?`<span class='habis'>Habis</span>`:''}</div><div class='bd'><div class='nm'>${esc(p.name)}</div><div class='price'>${rp(p.price)}${diskon(p)?` <s>${rp(p.harga_coret)}</s>`:''}</div>${p.terjual?`<small>Terjual ${p.terjual}</small>`:''}</div></a>`;
@@ -89,11 +96,12 @@ async function muatKat(){if(KAT.length)return;const r=await db.from('categories'
 async function muatToko(){
  const r=await db.from('sellers').select('name,wa,rekening,kebijakan').limit(1).maybeSingle();SELLER=r.data||{};
  const o=await db.from('ongkir').select('id,wilayah,tarif').order('urut').order('wilayah');ONG=o.data||[];
+ terapkanNama();
 }
 function kecilkan(file){return new Promise((ok,gagal)=>{const im=new Image(),u=URL.createObjectURL(file);im.onload=()=>{const k=Math.min(1,1600/Math.max(im.width,im.height)),cv=document.createElement('canvas');cv.width=Math.round(im.width*k);cv.height=Math.round(im.height*k);cv.getContext('2d').drawImage(im,0,0,cv.width,cv.height);URL.revokeObjectURL(u);cv.toBlob(b=>b?ok(b):gagal(new Error('Gagal memproses foto')),'image/jpeg',.85)};im.onerror=()=>gagal(new Error('Foto tidak bisa dibaca, coba format JPG atau PNG'));im.src=u})}
 async function infoToko(){
  await muatToko();
- app.innerHTML=`<div class='box'><h2>${esc(C.NAMA||SELLER.name||'Toko')}</h2>`+(SELLER.kebijakan?`<p class='desk'>${esc(SELLER.kebijakan)}</p>`:`<p>Informasi kebijakan toko belum diisi.</p>`)+(SELLER.rekening?`<h3>Pembayaran</h3><p class='desk'>${esc(SELLER.rekening)}</p>`:'')+(C.WA?`<p><a class='btn' href='https://wa.me/${esc(C.WA)}'>Hubungi penjual via WhatsApp</a></p>`:'')+`</div>`;
+ app.innerHTML=`<div class='box'><h2>${esc(namaToko())}</h2>`+(SELLER.kebijakan?`<p class='desk'>${esc(SELLER.kebijakan)}</p>`:`<p>Informasi kebijakan toko belum diisi.</p>`)+(SELLER.rekening?`<h3>Pembayaran</h3><p class='desk'>${esc(SELLER.rekening)}</p>`:'')+(C.WA?`<p><a class='btn' href='https://wa.me/${esc(C.WA)}'>Hubungi penjual via WhatsApp</a></p>`:'')+`</div>`;
 }
 function lupaView(){
  app.innerHTML=`<form id='lf' class='fm'><h2>Lupa kata sandi</h2><p>Masukkan email Anda. Kami kirim tautan untuk membuat kata sandi baru.</p><input name='e' type='email' placeholder='Email' required><button>Kirim tautan</button><p id='err'></p><p><a href='#/masuk'>Kembali masuk</a></p></form>`;
@@ -125,7 +133,7 @@ function rangka(tengah,aktif,kanan){
  return `<div class='kolom${kanan?'':' dua'}'><nav class='kat box'><b>Kategori</b><div><a class='${aktif==='semua'?'on':''}' href='#/semua'>Semua produk</a>${KAT.map(k=>`<a class='${aktif===k.id?'on':''}' href='#/k/${k.id}'>${esc(k.nama)}</a>`).join('')}</div></nav><section>${tengah}</section>${kanan?`<aside>${kanan}</aside>`:''}</div>`;
 }
 function banner(){
- const B=C.BANNER&&C.BANNER.length?C.BANNER:[{judul:C.NAMA||'Toko Online',sub:'',tombol:'Lihat produk',link:'#/semua'}];
+ const B=C.BANNER&&C.BANNER.length?C.BANNER:[{judul:namaToko(),sub:'',tombol:'Lihat produk',link:'#/semua'}];
  return `<div class='ban' id='ban'>${B.map((b,i)=>`<div class='sl${i?'':' on'}'><h2>${esc(b.judul)}</h2><p>${esc(b.sub||'')}</p><a class='btn' href='${esc(b.link||'#/semua')}'>${esc(b.tombol||'Lihat produk')}</a></div>`).join('')}${B.length>1?`<div class='dots'>${B.map((_,i)=>`<i data-d='${i}' class='${i?'':'on'}'></i>`).join('')}</div>`:''}</div>`;
 }
 function putarBanner(){
@@ -253,6 +261,7 @@ async function route(){
  if(h.indexOf('access_token')>=0||h.indexOf('type=recovery')>=0)return;
  try{
   await muatKat();
+  if(!tokoOk){await muatToko();tokoOk=true}
   if(!h.startsWith('/cari/'))$('#q').value='';
   if(h==='/')await beranda();
   else if(h==='/semua')await daftar({},'Semua produk','semua');
@@ -276,7 +285,7 @@ async function route(){
 (async()=>{
  if(db){const r=await db.auth.getSession();user=r.data.session?r.data.session.user:null}
  if(db)db.auth.onAuthStateChange((ev,ses)=>{user=ses?ses.user:null;uiAuth();upd();if(ev==='PASSWORD_RECOVERY')location.hash='#/reset'});
- $('#ft').innerHTML=esc(C.NAMA||'')+(C.WA?`<br><a href='https://wa.me/${esc(C.WA)}'>Hubungi penjual via WhatsApp</a>`:'')+`<br><a href='#/info'>Kebijakan dan info toko</a><br>&copy; ${new Date().getFullYear()}`;
+ terapkanNama();
  uiAuth();upd();addEventListener('hashchange',route);route();
 })();
 </script></body></html>
