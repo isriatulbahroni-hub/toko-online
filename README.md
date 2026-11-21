@@ -1,45 +1,24 @@
 # toko-online
 
-Toko online / marketplace bergaya Shopee, dibangun di atas **Mercur** (marketplace multi-vendor di atas Medusa, lisensi MIT).
+Website toko online bergaya Shopee. **Tahap 1: website, 1 penjual. Aplikasi (Flutter) menyusul.**
 
-**Tahap awal:** arsitektur multi-penjual, tetapi dikunci khusus untuk **1 penjual** (pemilik toko). Nanti bisa dibuka untuk banyak penjual tanpa bongkar struktur.
+Struktur data sudah multi-penjual, tetapi database mengunci hanya 1 penjual aktif (`hanya_satu_penjual_aktif`). Untuk membuka marketplace nanti, hapus indeks itu.
 
-## Status
+## Isi repo
 
-- [x] Repo dibuat, rencana dan kerangka awal
-- [ ] Generate aplikasi Mercur (`bun create mercur-app@latest`)
-- [ ] Database + Redis berjalan
-- [ ] Akun penjual tunggal + pendaftaran penjual dikunci
-- [ ] Katalog produk, checkout, pembayaran lokal
-- [ ] Aplikasi Flutter (klien) di atas API
+- `index.html`: etalase (daftar produk, detail, keranjang, checkout). Satu file, tanpa build.
+- `config.js`: isi URL dan anon key Supabase, serta nomor WhatsApp penjual.
+- `supabase/migrations/0001_init.sql`: tabel, RLS, dan fungsi `buat_pesanan` (harga dan stok dihitung di server).
+- `docs/RENCANA.md`: rencana tahap.
+- `docker-compose.yml`, `scripts/setup.sh`: untuk jalur Mercur (tahap marketplace besar), belum dipakai.
 
-Detail langkah ada di [docs/RENCANA.md](docs/RENCANA.md).
+## Menjalankan
 
-## Kebutuhan
+1. Buat proyek Supabase, jalankan isi `0001_init.sql` di SQL Editor.
+2. Jalankan contoh data awal (bagian komentar di akhir file SQL).
+3. Isi `config.js`.
+4. Deploy repo ini ke Vercel atau GitHub Pages (situs statis, tanpa build).
 
-| Komponen | Versi | Keterangan |
-|---|---|---|
-| Node.js | 20+ (LTS) | runtime |
-| Bun | 1.3+ | package manager yang disarankan Mercur |
-| PostgreSQL | 14+ | database utama |
-| Redis | terbaru | antrean/cache (disarankan) |
+## Belum ada
 
-## Mulai cepat
-
-```bash
-cp .env.example .env
-docker compose up -d          # Postgres + Redis (di VPS/laptop)
-bash scripts/setup.sh         # cek prasyarat dan tampilkan langkah berikut
-```
-
-Lalu generate aplikasinya:
-
-```bash
-bun create mercur-app@latest app
-cd app && bun dev
-```
-
-## Catatan
-
-- Docker tidak tersedia di Termux. Di HP, pakai paket Postgres/Redis Termux, atau database di cloud, atau jalankan dari VPS/Codespaces.
-- Kompatibilitas Bun di Termux belum diverifikasi.
+- Pembayaran online, ongkir, halaman admin (sementara kelola produk dan pesanan lewat Table Editor Supabase), upload foto (pakai URL gambar).
