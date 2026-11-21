@@ -4,6 +4,10 @@
 body{margin:0;font:16px system-ui,sans-serif;background:#f6f6f6;color:#222}
 header{position:sticky;top:0;background:#ee4d2d;display:flex;justify-content:space-between;padding:12px 16px}
 header a{color:#fff;text-decoration:none;font-weight:600}
+header span{display:flex;gap:16px}
+form{max-width:420px;margin:auto}
+form a{color:#ee4d2d}
+#err,.ok{color:#c0392b}.ok{color:#1e8449}
 main{max-width:900px;margin:auto;padding:12px}
 .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
 @media(min-width:700px){.grid{grid-template-columns:repeat(4,1fr)}}
@@ -17,7 +21,7 @@ input,textarea{width:100%;box-sizing:border-box;padding:10px;margin:4px 0 10px;b
 .row{display:flex;justify-content:space-between;align-items:center;gap:8px;background:#fff;padding:10px;border-radius:8px;margin-bottom:8px}
 .msg{padding:20px;text-align:center}
 </style></head><body>
-<header><a href='#/'>Toko Online</a><a href='#/keranjang' id='kc'>Keranjang (0)</a></header>
+<header><a href='#/'>Toko Online</a><span><a href='#/keranjang' id='kc'>Keranjang (0)</a><a href='#/masuk' id='ak'>Masuk</a></span></header>
 <main id='app'></main>
 <script src='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js'></script>
 <script src='config.js'></script>
@@ -26,7 +30,12 @@ const C=window.CFG||{},$=s=>document.querySelector(s),app=$('#app');
 const rp=n=>'Rp'+Number(n).toLocaleString('id-ID');
 const esc=s=>String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/'/g,'&#39;').split(String.fromCharCode(34)).join('&quot;');
 const db=(typeof supabase!=='undefined'&&C.SUPABASE_URL)?supabase.createClient(C.SUPABASE_URL,C.SUPABASE_ANON_KEY):null;
-const cart={get(){try{return JSON.parse(localStorage.getItem('cart')||'{}')}catch(e){return{}}},set(c){try{localStorage.setItem('cart',JSON.stringify(c))}catch(e){}upd()}};
+let user=null;
+const ck=()=>user?'cart:'+user.id:null;
+const cart={get(){try{return ck()?JSON.parse(localStorage.getItem(ck())||'{}'):{}}catch(e){return{}}},set(c){try{if(ck())localStorage.setItem(ck(),JSON.stringify(c))}catch(e){}upd()}};
+function uiAuth(){const a=$('#ak');a.textContent=user?'Keluar':'Masuk';a.href=user?'#/keluar':'#/masuk'}
+function perluMasuk(back){try{sessionStorage.setItem('back',back)}catch(e){}location.hash='#/masuk'}
+const galat=m=>({'Invalid login credentials':'Email atau kata sandi salah','Email not confirmed':'Cek email Anda dan klik tautan konfirmasi dulu','User already registered':'Email sudah terdaftar, silakan masuk'}[m]||m);
 function upd(){$('#kc').textContent='Keranjang ('+Object.values(cart.get()).reduce((s,x)=>s+x.qty,0)+')'}
 const img=p=>p.image_url?`<img src='${esc(p.image_url)}' alt='${esc(p.name)}' loading='lazy'>`:`<div class='ph'></div>`;
 
@@ -38,9 +47,9 @@ async function list(){
 async function detail(id){
  const{data:p,error}=await db.from('products').select('*').eq('id',id).single();
  if(error)throw error;
- app.innerHTML=`${img(p)}<h2>${esc(p.name)}</h2><p class='price'>${rp(p.price)}</p><p>Stok: ${p.stock}</p><p>${esc(p.description)}</p>`+(p.stock>0?`<button id='add'>Tambah ke keranjang</button>`:`<p>Stok habis</p>`);
+ app.innerHTML=`${img(p)}<h2>${esc(p.name)}</h2><p class='price'>${rp(p.price)}</p><p>Stok: ${p.stock}</p><p>${esc(p.description)}</p>`+(p.stock>0?`<button id='add'>${user?'Tambah ke keranjang':'Masuk untuk membeli'}</button>`:`<p>Stok habis</p>`);
  const b=$('#add');
- if(b)b.onclick=()=>{const c=cart.get();c[p.id]={name:p.name,price:p.price,qty:Math.min(((c[p.id]||{}).qty||0)+1,p.stock)};cart.set(c);b.textContent='Masuk keranjang'};
+ if(b)b.onclick=()=>{if(!user){perluMasuk('#/p/'+p.id);return}const c=cart.get();c[p.id]={name:p.name,price:p.price,stock:p.stock,qty:Math.min(((c[p.id]||{}).qty||0)+1,p.stock)};cart.set(c);b.textContent='Masuk keranjang'};
 }
 function cartView(){
  const c=cart.get(),ids=Object.keys(c);
@@ -48,17 +57,31 @@ function cartView(){
  const total=ids.reduce((s,i)=>s+c[i].price*c[i].qty,0);
  app.innerHTML=ids.map(i=>`<div class='row'><span>${esc(c[i].name)}<br><small>${rp(c[i].price)}</small></span><span><button data-a='-' data-i='${i}'>-</button> ${c[i].qty} <button data-a='+' data-i='${i}'>+</button></span></div>`).join('')+`<p class='price'>Total: ${rp(total)}</p><a class='btn' href='#/checkout'>Checkout</a>`;
 }
-app.onclick=e=>{const b=e.target.closest('button[data-a]');if(!b)return;const c=cart.get(),i=b.dataset.i;c[i].qty+=b.dataset.a==='+'?1:-1;if(c[i].qty<1)delete c[i];cart.set(c);cartView()};
-function checkout(){
+app.onclick=e=>{const b=e.target.closest('button[data-a]');if(!b)return;const c=cart.get(),i=b.dataset.i;c[i].qty=Math.min(c[i].qty+(b.dataset.a==='+'?1:-1),c[i].stock||99);if(c[i].qty<1)delete c[i];cart.set(c);cartView()};
+function authView(daftar){
+ app.innerHTML=`<form id='af'><h2>${daftar?'Daftar':'Masuk'}</h2>`+(daftar?`<input name='n' placeholder='Nama lengkap' maxlength='100' required>`:'')+`<input name='e' type='email' placeholder='Email' required><input name='p' type='password' placeholder='Kata sandi (minimal 8 karakter)' minlength='8' required><button>${daftar?'Daftar':'Masuk'}</button><p id='err'></p><p>${daftar?`Sudah punya akun? <a href='#/masuk'>Masuk</a>`:`Belum punya akun? <a href='#/daftar'>Daftar</a>`}</p></form>`;
+ $('#af').onsubmit=async e=>{
+  e.preventDefault();const f=e.target,btn=f.querySelector('button');btn.disabled=true;$('#err').textContent='';
+  const cred={email:f.e.value.trim(),password:f.p.value};
+  const r=daftar?await db.auth.signUp({...cred,options:{data:{nama:f.n.value.trim()}}}):await db.auth.signInWithPassword(cred);
+  if(r.error){$('#err').textContent=galat(r.error.message);btn.disabled=false;return}
+  if(!r.data.session){f.innerHTML=`<p class='ok'>Pendaftaran berhasil. Cek email Anda dan klik tautan konfirmasi, lalu <a href='#/masuk'>masuk</a>.</p>`;return}
+  user=r.data.session.user;uiAuth();upd();
+  let back='#/';try{back=sessionStorage.getItem('back')||'#/';sessionStorage.removeItem('back')}catch(x){}
+  location.hash=back;
+ };
+}
+async function checkout(){
  const c=cart.get(),ids=Object.keys(c);
  if(!ids.length){location.hash='#/keranjang';return}
- app.innerHTML=`<form id='f'><input name='n' placeholder='Nama' required><input name='t' type='tel' placeholder='No. WhatsApp' required><textarea name='a' rows='3' placeholder='Alamat lengkap' required></textarea><button>Buat pesanan</button><p id='err'></p></form>`;
+ const pr=(await db.from('profiles').select('nama,telp,alamat').eq('id',user.id).maybeSingle()).data||{};
+ app.innerHTML=`<form id='f'><input name='n' placeholder='Nama' maxlength='100' value='${esc(pr.nama||(user.user_metadata||{}).nama||'')}' required><input name='t' type='tel' placeholder='No. WhatsApp' pattern='[0-9+ -]{8,20}' value='${esc(pr.telp)}' required><textarea name='a' rows='3' placeholder='Alamat lengkap' minlength='10' maxlength='500' required>${esc(pr.alamat)}</textarea><button>Buat pesanan</button><p id='err'></p></form>`;
  $('#f').onsubmit=async e=>{
   e.preventDefault();const f=e.target,btn=f.querySelector('button');btn.disabled=true;
   const{data,error}=await db.rpc('buat_pesanan',{p_nama:f.n.value,p_telp:f.t.value,p_alamat:f.a.value,p_items:ids.map(i=>({id:i,qty:c[i].qty}))});
   if(error){$('#err').textContent=error.message;btn.disabled=false;return}
   const o=data[0],nl=String.fromCharCode(10);
-  const txt=['Pesanan '+String(o.order_id).slice(0,8)].concat(ids.map(i=>c[i].qty+'x '+c[i].name),['Total '+rp(o.total),'Nama: '+f.n.value]).join(nl);
+  const txt=['Pesanan '+String(o.order_id).slice(0,8)].concat(ids.map(i=>c[i].qty+'x '+c[i].name),['Total '+rp(o.total),'Nama: '+f.n.value,'Telp: '+f.t.value,'Alamat: '+f.a.value]).join(nl);
   cart.set({});
   app.innerHTML=`<p class='msg'>Pesanan dibuat. Total ${rp(o.total)}.</p>`+(C.WA?`<p class='msg'><a class='btn' href='https://wa.me/${esc(C.WA)}?text=${encodeURIComponent(txt)}'>Konfirmasi via WhatsApp</a></p>`:'');
  };
@@ -70,10 +93,15 @@ async function route(){
  try{
   if(h==='/')await list();
   else if(h.startsWith('/p/'))await detail(h.slice(3));
-  else if(h==='/keranjang')cartView();
-  else if(h==='/checkout')checkout();
+  else if(h==='/masuk'||h==='/daftar'){if(user)location.hash='#/';else authView(h==='/daftar')}
+  else if(h==='/keluar'){await db.auth.signOut();user=null;uiAuth();upd();location.hash='#/'}
+  else if(h==='/keranjang'||h==='/checkout'){if(!user)perluMasuk('#'+h);else if(h==='/keranjang')cartView();else await checkout()}
   else app.innerHTML=`<p class='msg'>Halaman tidak ditemukan.</p>`;
  }catch(e){app.innerHTML=`<p class='msg'>Gagal: ${esc(e.message)}</p>`}
 }
-upd();addEventListener('hashchange',route);route();
+(async()=>{
+ if(db){const r=await db.auth.getSession();user=r.data.session?r.data.session.user:null}
+ if(db)db.auth.onAuthStateChange((ev,ses)=>{user=ses?ses.user:null;uiAuth();upd()});
+ uiAuth();upd();addEventListener('hashchange',route);route();
+})();
 </script></body></html>

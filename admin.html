@@ -38,7 +38,16 @@ async function panel(){
  if(!r.data){app.innerHTML=`<p class='msg'>Akun ${esc(u.email)} belum ditautkan ke toko.</p>`;return}
  seller=r.data;tab('produk');
 }
-function tab(t){app.innerHTML=`<p><button data-t='produk'>Produk</button><button data-t='pesanan'>Pesanan</button></p><div id='box'></div>`;t==='produk'?produk():pesanan()}
+function tab(t){app.innerHTML=`<p><button data-t='produk'>Produk</button><button data-t='pesanan'>Pesanan</button></p><div id='box'></div>`;t==='produk'?produk():pesanan();cekBaru()}
+async function cekBaru(){
+ if(!seller)return;
+ const r=await db.from('orders').select('id',{count:'exact',head:true}).eq('seller_id',seller.id).eq('status','baru');
+ if(r.error)return;
+ const n=r.count||0,b=document.querySelector("button[data-t='pesanan']");
+ if(b)b.textContent='Pesanan'+(n?' ('+n+' baru)':'');
+ document.title=(n?'('+n+') ':'')+'Admin';
+}
+setInterval(cekBaru,30000);
 async function produk(){
  const r=await db.from('products').select('*').eq('seller_id',seller.id).order('created_at',{ascending:false});
  if(r.error){$('#box').textContent=r.error.message;return}
@@ -72,6 +81,6 @@ async function pesanan(){
 }
 app.onclick=e=>{const b=e.target.closest('button');if(!b)return;const d=b.dataset;
  if(d.t)tab(d.t);else if(d.a==='baru')form();else if(d.a==='edit')form(P.find(x=>x.id===d.i));else if(d.a==='batal')produk()};
-app.onchange=async e=>{const s=e.target.closest('select[data-o]');if(!s)return;const r=await db.from('orders').update({status:s.value}).eq('id',s.dataset.o);if(r.error)alert(r.error.message)};
+app.onchange=async e=>{const s=e.target.closest('select[data-o]');if(!s)return;const r=await db.from('orders').update({status:s.value}).eq('id',s.dataset.o);if(r.error){alert(r.error.message);pesanan()}cekBaru()};
 init();
 </script></body></html>
