@@ -38,7 +38,9 @@ async function panel(){
  if(!r.data){app.innerHTML=`<p class='msg'>Akun ${esc(u.email)} belum ditautkan ke toko.</p>`;return}
  seller=r.data;CAT=(await db.from('categories').select('id,nama').order('urut')).data||[];tab('produk');
 }
-function tab(t){app.innerHTML=`<p><button data-t='produk'>Produk</button><button data-t='pesanan'>Pesanan</button></p><div id='box'></div>`;t==='produk'?produk():pesanan();cekBaru()}
+function tab(t){app.innerHTML=`<p><button data-t='produk'>Produk</button><button data-t='pesanan'>Pesanan</button><button data-t='atur'>Pengaturan</button></p><div id='box'></div>`;t==='produk'?produk():t==='pesanan'?pesanan():atur();cekBaru()}
+let lastBaru=null;
+function bunyi(){try{const a=new (window.AudioContext||window.webkitAudioContext)(),o=a.createOscillator();o.connect(a.destination);o.frequency.value=880;o.start();o.stop(a.currentTime+.25)}catch(e){}}
 async function cekBaru(){
  if(!seller)return;
  const r=await db.from('orders').select('id',{count:'exact',head:true}).eq('seller_id',seller.id).eq('status','baru');
@@ -46,6 +48,8 @@ async function cekBaru(){
  const n=r.count||0,b=document.querySelector("button[data-t='pesanan']");
  if(b)b.textContent='Pesanan'+(n?' ('+n+' baru)':'');
  document.title=(n?'('+n+') ':'')+'Admin';
+ if(lastBaru!==null&&n>lastBaru){bunyi();try{if(window.Notification&&Notification.permission==='granted')new Notification('Pesanan baru, '+n+' menunggu')}catch(e){}}
+ lastBaru=n;
 }
 setInterval(cekBaru,30000);
 async function produk(){
@@ -73,14 +77,54 @@ function form(p){
   }catch(err){msg(err.message);b.disabled=false}
  };
 }
+let O=[],ONGKIR=[],filterP='semua';
+const NEXT={baru:['dibayar','batal'],dibayar:['dikirim','batal'],dikirim:['selesai'],selesai:[],batal:[]};
+const nomorWA=t=>{let d=String(t).replace(/\D/g,'');if(d.startsWith('0'))d='62'+d.slice(1);return d};
+function kartuPesanan(o){
+ const next=NEXT[o.status]||[];
+ return `<div class='row' style='display:block'><b>${esc(o.buyer_name)}</b> <a href='https://wa.me/${nomorWA(o.buyer_phone)}' target='_blank' rel='noopener'>${esc(o.buyer_phone)}</a><br><small>${esc(o.address)}</small><br>${o.order_items.map(i=>i.qty+'x '+esc(i.name)).join(', ')}<br>${o.ongkir>0?`<small>Ongkir ${esc(o.wilayah||'')}: ${rp(o.ongkir)}</small><br>`:''}<b>${rp(o.total)}</b> <small>(${esc(o.status)})</small>${o.resi?`<br><small>${esc(o.kurir||'')} resi ${esc(o.resi)}</small>`:''}${o.bukti_path?`<br><button data-a='bukti' data-p='${esc(o.bukti_path)}'>Lihat bukti bayar</button>`:(o.status==='baru'?`<br><small>Belum ada bukti bayar</small>`:'')}${next.length?`<br><select data-o='${o.id}'><option value=''>Ubah status...</option>${next.map(x=>`<option value='${x}'>${x}</option>`).join('')}</select>`:''}</div>`;
+}
 async function pesanan(){
  const r=await db.from('orders').select('*,order_items(name,qty,price)').eq('seller_id',seller.id).order('created_at',{ascending:false});
  if(r.error){$('#box').textContent=r.error.message;return}
- const st=['baru','dibayar','dikirim','selesai','batal'];
- $('#box').innerHTML=r.data.length?r.data.map(o=>`<div class='row' style='display:block'><b>${esc(o.buyer_name)}</b> ${esc(o.buyer_phone)}<br><small>${esc(o.address)}</small><br>${o.order_items.map(i=>i.qty+'x '+esc(i.name)).join(', ')}<br><b>${rp(o.total)}</b> <select data-o='${o.id}'>${st.map(s=>`<option${s===o.status?' selected':''}>${s}</option>`).join('')}</select></div>`).join(''):`<p class='msg'>Belum ada pesanan.</p>`;
+ O=r.data;
+ const chips=['semua','baru','dibayar','dikirim','selesai','batal'].map(x=>`<button data-f='${x}'${x===filterP?'':" style='background:#999'"}>${x}</button>`).join('');
+ const daf=O.filter(o=>filterP==='semua'||o.status===filterP);
+ $('#box').innerHTML=`<p>${chips}</p>`+(daf.length?daf.map(kartuPesanan).join(''):`<p class='msg'>Tidak ada pesanan.</p>`);
 }
-app.onclick=e=>{const b=e.target.closest('button');if(!b)return;const d=b.dataset;
- if(d.t)tab(d.t);else if(d.a==='baru')form();else if(d.a==='edit')form(P.find(x=>x.id===d.i));else if(d.a==='batal')produk()};
-app.onchange=async e=>{const s=e.target.closest('select[data-o]');if(!s)return;const r=await db.from('orders').update({status:s.value}).eq('id',s.dataset.o);if(r.error){alert(r.error.message);pesanan()}cekBaru()};
+async function atur(){
+ const[o,k]=await Promise.all([db.from('ongkir').select('*').order('urut').order('wilayah'),db.from('categories').select('*').order('urut').order('nama')]);
+ ONGKIR=o.data||[];CAT=k.data||[];
+ $('#box').innerHTML=`<form id='sf'><h3>Info toko</h3><input name='name' maxlength='100' placeholder='Nama toko' value='${esc(seller.name)}' required><input name='wa' placeholder='WhatsApp (628xxx)' value='${esc(seller.wa)}'><textarea name='rekening' rows='3' maxlength='300' placeholder='Rekening pembayaran (contoh: BCA 1234567 a.n. Nama)'>${esc(seller.rekening)}</textarea><textarea name='kebijakan' rows='5' maxlength='3000' placeholder='Kebijakan toko: pengiriman, retur, jam layanan'>${esc(seller.kebijakan)}</textarea><button>Simpan info toko</button> <small id='m'></small></form>`
+ +`<h3>Ongkir per wilayah</h3>`+ONGKIR.map(x=>`<div class='row'><span>${esc(x.wilayah)}<br><small>${rp(x.tarif)}</small></span><span><button data-a='ongubah' data-i='${x.id}'>Ubah</button><button data-a='onghapus' data-i='${x.id}'>Hapus</button></span></div>`).join('')
+ +`<form id='of'><input name='w' maxlength='80' placeholder='Wilayah (mis. Palembang)' required><input name='t' type='number' min='0' placeholder='Tarif (Rp)' required><button>Tambah wilayah</button></form>`
+ +`<h3>Kategori</h3>`+CAT.map(x=>`<div class='row'><span>${esc(x.nama)}</span><span><button data-a='katubah' data-i='${x.id}'>Ubah nama</button><button data-a='kathapus' data-i='${x.id}'>Hapus</button></span></div>`).join('')
+ +`<form id='kf'><input name='n' maxlength='60' placeholder='Nama kategori' required><button>Tambah kategori</button></form>`;
+ $('#sf').onsubmit=async e=>{e.preventDefault();const el=e.target.elements;
+  const r=await db.from('sellers').update({name:el['name'].value.trim(),wa:el['wa'].value.trim()||null,rekening:el['rekening'].value,kebijakan:el['kebijakan'].value}).eq('id',seller.id).select().single();
+  if(r.error)msg(r.error.message);else{seller=r.data;msg('Tersimpan')}};
+ $('#of').onsubmit=async e=>{e.preventDefault();const el=e.target.elements;
+  const r=await db.from('ongkir').insert({wilayah:el['w'].value.trim(),tarif:+el['t'].value});
+  if(r.error)alert(r.error.message);atur()};
+ $('#kf').onsubmit=async e=>{e.preventDefault();
+  const r=await db.from('categories').insert({nama:e.target.elements['n'].value.trim(),urut:CAT.length+1});
+  if(r.error)alert(r.error.message);atur()};
+}
+app.onclick=async e=>{const b=e.target.closest('button');if(!b)return;const d=b.dataset;
+ if(window.Notification&&Notification.permission==='default')Notification.requestPermission();
+ if(d.t)tab(d.t);else if(d.a==='baru')form();else if(d.a==='edit')form(P.find(x=>x.id===d.i));else if(d.a==='batal')produk();
+ else if(d.f){filterP=d.f;pesanan()}
+ else if(d.a==='bukti'){const w=window.open('about:blank','_blank');const r=await db.storage.from('bukti').createSignedUrl(d.p,300);if(r.error){if(w)w.close();alert(r.error.message)}else if(w)w.location=r.data.signedUrl}
+ else if(d.a==='ongubah'){const x=ONGKIR.find(y=>y.id===d.i),t=prompt('Tarif baru untuk '+x.wilayah+' (Rp)',x.tarif);if(t===null)return;if(!/^[0-9]+$/.test(t.trim())){alert('Isi dengan angka');return}const r=await db.from('ongkir').update({tarif:+t}).eq('id',d.i);if(r.error)alert(r.error.message);atur()}
+ else if(d.a==='onghapus'){if(!confirm('Hapus wilayah ini?'))return;const r=await db.from('ongkir').delete().eq('id',d.i);if(r.error)alert(r.error.message);atur()}
+ else if(d.a==='katubah'){const x=CAT.find(y=>y.id===d.i),n=prompt('Nama kategori',x.nama);if(n===null||!n.trim())return;const r=await db.from('categories').update({nama:n.trim()}).eq('id',d.i);if(r.error)alert(r.error.message);atur()}
+ else if(d.a==='kathapus'){if(!confirm('Hapus kategori ini? Produknya jadi tanpa kategori.'))return;const r=await db.from('categories').delete().eq('id',d.i);if(r.error)alert(r.error.message);atur()}};
+app.onchange=async e=>{const sel=e.target.closest('select[data-o]');if(!sel||!sel.value)return;
+ const ubah={status:sel.value};
+ if(sel.value==='dikirim'){const k=prompt('Nama kurir (mis. JNE)');if(k===null){pesanan();return}const rs=prompt('Nomor resi');if(rs===null){pesanan();return}ubah.kurir=(k||'').trim()||null;ubah.resi=(rs||'').trim()||null}
+ else if(sel.value==='batal'&&!confirm('Batalkan pesanan ini? Stok akan dikembalikan.')){pesanan();return}
+ const r=await db.from('orders').update(ubah).eq('id',sel.dataset.o);
+ if(r.error)alert(r.error.message);
+ pesanan();cekBaru()};
 init();
 </script></body></html>
