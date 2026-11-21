@@ -22,7 +22,7 @@ const rp=n=>'Rp'+Number(n).toLocaleString('id-ID');
 const esc=s=>String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/'/g,'&#39;').split(String.fromCharCode(34)).join('&quot;');
 const db=supabase.createClient(C.SUPABASE_URL,C.SUPABASE_ANON_KEY);
 const msg=t=>{const m=$('#m');if(m)m.textContent=t};
-let seller=null,P=[];
+let seller=null,P=[],CAT=[];
 
 async function init(){const r=await db.auth.getSession();r.data.session?panel():login()}
 function login(){
@@ -36,7 +36,7 @@ async function panel(){
  $('#lo').onclick=async e=>{e.preventDefault();await db.auth.signOut();login()};
  const r=await db.from('sellers').select('*').eq('owner_id',u.id).maybeSingle();
  if(!r.data){app.innerHTML=`<p class='msg'>Akun ${esc(u.email)} belum ditautkan ke toko.</p>`;return}
- seller=r.data;tab('produk');
+ seller=r.data;CAT=(await db.from('categories').select('id,nama').order('urut')).data||[];tab('produk');
 }
 function tab(t){app.innerHTML=`<p><button data-t='produk'>Produk</button><button data-t='pesanan'>Pesanan</button></p><div id='box'></div>`;t==='produk'?produk():pesanan();cekBaru()}
 async function cekBaru(){
@@ -56,7 +56,7 @@ async function produk(){
 }
 function form(p){
  p=p||{};
- $('#box').innerHTML=`<form id='pf'><input name='name' placeholder='Nama produk' value='${esc(p.name)}' required><textarea name='description' rows='3' placeholder='Deskripsi'>${esc(p.description)}</textarea><input name='price' type='number' min='0' placeholder='Harga (Rp)' value='${p.price==null?'':p.price}' required><input name='stock' type='number' min='0' placeholder='Stok' value='${p.stock==null?0:p.stock}' required><input name='file' type='file' accept='image/*'><label><input type='checkbox' name='is_active' style='width:auto' ${p.is_active===false?'':'checked'}> Tayang</label><br><button>Simpan</button><button type='button' data-a='batal'>Batal</button><p id='m'></p></form>`;
+ $('#box').innerHTML=`<form id='pf'><input name='name' placeholder='Nama produk' value='${esc(p.name)}' required><textarea name='description' rows='3' placeholder='Deskripsi'>${esc(p.description)}</textarea><input name='price' type='number' min='0' placeholder='Harga (Rp)' value='${p.price==null?'':p.price}' required><input name='harga_coret' type='number' min='0' placeholder='Harga coret / sebelum diskon (opsional)' value='${p.harga_coret==null?'':p.harga_coret}'><input name='stock' type='number' min='0' placeholder='Stok' value='${p.stock==null?0:p.stock}' required><select name='category_id' style='width:100%'><option value=''>Tanpa kategori</option>${CAT.map(k=>`<option value='${k.id}'${k.id===p.category_id?' selected':''}>${esc(k.nama)}</option>`).join('')}</select><input name='file' type='file' accept='image/*'><label><input type='checkbox' name='is_active' style='width:auto' ${p.is_active===false?'':'checked'}> Tayang</label><br><button>Simpan</button><button type='button' data-a='batal'>Batal</button><p id='m'></p></form>`;
  $('#pf').onsubmit=async e=>{
   e.preventDefault();const el=e.target.elements,b=e.target.querySelector('button');b.disabled=true;
   try{
@@ -66,7 +66,7 @@ function form(p){
     const up=await db.storage.from('produk').upload(path,file);if(up.error)throw up.error;
     url=db.storage.from('produk').getPublicUrl(path).data.publicUrl;
    }
-   const row={seller_id:seller.id,name:el['name'].value.trim(),description:el['description'].value,price:+el['price'].value,stock:+el['stock'].value,image_url:url,is_active:el['is_active'].checked};
+   const row={seller_id:seller.id,name:el['name'].value.trim(),description:el['description'].value,price:+el['price'].value,stock:+el['stock'].value,harga_coret:el['harga_coret'].value?+el['harga_coret'].value:null,category_id:el['category_id'].value||null,image_url:url,is_active:el['is_active'].checked};
    const r=p.id?await db.from('products').update(row).eq('id',p.id):await db.from('products').insert(row);
    if(r.error)throw r.error;
    produk();
