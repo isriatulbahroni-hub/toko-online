@@ -11,6 +11,8 @@ function upd(){const n=Object.values(cart.get()).reduce((s,x)=>s+x.qty,0);docume
 const STS={baru:['Menunggu pembayaran','#b9770e'],dibayar:['Dibayar','#1e8449'],dikirim:['Dikirim','#2471a3'],selesai:['Selesai','#555'],batal:['Dibatalkan','#c0392b']};
 
 const namaToko=()=>SELLER.name||C.NAMA||'Toko Online';
+const BR=()=>SELLER.beranda||{};
+const aman=l=>(l&&(l.startsWith('#/')||l.startsWith('https://')))?l:'#/semua';
 function terapkanNama(){
  const n=namaToko(),w=$('#wa');
  document.title=n;
@@ -24,7 +26,10 @@ const gridHtml=ps=>ps.length?`<div class='grid'>${ps.map(kartu).join('')}</div>`
 const namaKat=id=>(KAT.find(k=>k.id===id)||{}).nama||'';
 async function muatKat(){if(KAT.length)return;const r=await db.from('categories').select('id,nama').order('urut');KAT=r.data||[]}
 async function muatToko(){
- const r=await db.from('sellers').select('name,wa,rekening,kebijakan').limit(1).maybeSingle();SELLER=r.data||{};
+ let r=await db.from('sellers').select('name,wa,rekening,kebijakan,beranda').limit(1).maybeSingle();
+ if(r.error)r=await db.from('sellers').select('name,wa,rekening,kebijakan').limit(1).maybeSingle();
+ SELLER=r.data||{};
+ if(SELLER.wa){let d=String(SELLER.wa).replace(/[^0-9]/g,'');if(d.startsWith('0'))d='62'+d.slice(1);if(d)C.WA=d}
  const o=await db.from('ongkir').select('id,wilayah,tarif').order('urut').order('wilayah');ONG=o.data||[];
  terapkanNama();
 }
@@ -65,8 +70,8 @@ function ikon(wrap){
 }
 const chipKat=a=>`<div class='chips'><a class='${a==='semua'?'on':''}' href='#/semua'>Semua</a>${KAT.map(k=>`<a class='${a===k.id?'on':''}' href='#/k/${k.id}'>${esc(k.nama)}</a>`).join('')}</div>`;
 function banner(){
- const B=C.BANNER&&C.BANNER.length?C.BANNER:[{judul:namaToko(),sub:'',tombol:'Lihat produk',link:'#/semua'}];
- return `<div class='ban' id='ban'>${B.map(b=>`<div class='sl'><h2>${esc(b.judul)}</h2><p>${esc(b.sub||'')}</p><a class='btn sm' href='${esc(b.link||'#/semua')}'>${esc(b.tombol||'Lihat produk')}</a></div>`).join('')}</div>`;
+ const bn=BR().banner,B=bn&&bn.length?bn:(C.BANNER&&C.BANNER.length?C.BANNER:[{judul:namaToko(),sub:'',tombol:'Lihat produk',link:'#/semua'}]);
+ return `<div class='ban' id='ban'>${B.map(b=>`<div class='sl'><h2>${esc(b.judul)}</h2><p>${esc(b.sub||'')}</p><a class='btn sm' href='${esc(aman(b.link))}'>${esc(b.tombol||'Lihat produk')}</a></div>`).join('')}</div>`;
 }
 function putarBanner(){
  const el=$('#ban');if(!el||el.children.length<2||matchMedia('(prefers-reduced-motion:reduce)').matches)return;
@@ -85,8 +90,10 @@ const mini=ps=>ps.slice(0,2).map(p=>`<a href='#/p/${p.id}'>${img(p)}<small class
 async function beranda(){
  const[ps,st]=await Promise.all([ambilProduk({}),user?statUser():sapa()]);
  const laris=ps.filter(x=>x.terjual>0).sort((a,b)=>b.terjual-a.terjual);
- const ung=(C.KEUNGGULAN||[]).map(u=>`<div><b>${esc(u[0])}</b><br><small>${esc(u[1]||'')}</small></div>`).join('');
- const info=(C.PENGUMUMAN||[]).map(x=>`<li>${esc(x.judul)}${x.tgl?` <small>${esc(x.tgl)}</small>`:''}</li>`).join('');
+ const kg=BR().keunggulan&&BR().keunggulan.length?BR().keunggulan:(C.KEUNGGULAN||[]);
+ const pg=BR().pengumuman&&BR().pengumuman.length?BR().pengumuman:(C.PENGUMUMAN||[]);
+ const ung=kg.map(u=>`<div><b>${esc(u[0])}</b><br><small>${esc(u[1]||'')}</small></div>`).join('');
+ const info=pg.map(x=>`<li>${esc(x.judul)}${x.tgl?` <small>${esc(x.tgl)}</small>`:''}</li>`).join('');
  app.innerHTML=st+ikon()+banner()+(ps.length?`<div class='dua'><div class='box'><a class='tt' href='#/semua'>Terlaris &rsaquo;</a><div class='pv'>${mini(laris.length?laris:ps.slice(2))}</div></div><div class='box'><a class='tt' href='#/semua'>Terbaru &rsaquo;</a><div class='pv'>${mini(ps)}</div></div></div>`:'')+(ung?`<div class='box ung'>${ung}</div>`:'')+(info?`<div class='box'><b>Pengumuman</b><ul class='info'>${info}</ul></div>`:'')+`<h3 class='jd'>Produk untuk Anda</h3>`+gridHtml(ps);
  putarBanner();
 }
