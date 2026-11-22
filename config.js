@@ -9,7 +9,7 @@ window.CFG = {
   WA: '6281703564978',
   // Konten beranda (edit sesuka hati). link: '#/semua' atau '#/k/ID-KATEGORI'.
   BANNER: [
-    { judul: 'Galery Songket Sari Melati', sub: 'Kain songket, selendang, dan busana pilihan untuk hari istimewa.', tombol: 'Lihat koleksi', link: '#/semua' }
+    { judul: 'Belanja mudah, pesanan terpantau', sub: 'Berbagai produk pilihan langsung dari toko kami.', tombol: 'Lihat produk', link: '#/semua' }
   ],
   KEUNGGULAN: [
     ['Stok terlihat langsung', 'Lihat ketersediaan sebelum memesan'],
@@ -17,6 +17,6 @@ window.CFG = {
     ['Pantau pesanan', 'Cek status pesanan dari akun Anda']
   ],
   PENGUMUMAN: [
-    { judul: 'Tanya stok dan konfirmasi pesanan langsung lewat WhatsApp' }
+    { judul: 'Selamat datang di toko kami' }
   ]
 };

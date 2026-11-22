@@ -2,7 +2,7 @@
 // dan placeholder pencarian. Dimuat setelah modul lain. Hanya mengubah tampilan beranda; logika lain tetap.
 // Ikon memakai set garis dari tema.js; warna utama diatur admin (tema.js).
 (()=>{
-const IK=[['pulsa','pulsa'],['tagihan','pulsa'],['songket','songket'],['kain','songket'],['tenun','songket'],['selendang','selendang'],['syal','selendang'],['busana','busana'],['kebaya','busana'],['gamis','busana'],['baju','baju'],['fashion','baju'],['pakaian','baju'],['wanita','baju'],['pria','baju'],['hijab','baju'],['kerudung','baju'],['aksesori','cantik'],['aksesoris','cantik'],['perhiasan','cantik'],['kecantikan','cantik'],['tas','tas'],['sepatu','sepatu'],['elektronik','elektronik'],['gadget','elektronik'],['makanan','makanan'],['minuman','makanan'],['rumah','rumah'],['dapur','rumah'],['anak','anak'],['bayi','anak'],['lainnya','lainnya']];
+const IK=[['pulsa','pulsa'],['tagihan','pulsa'],['songket','baju'],['kain','baju'],['selendang','baju'],['syal','baju'],['busana','baju'],['baju','baju'],['gamis','baju'],['fashion','baju'],['pakaian','baju'],['wanita','baju'],['pria','baju'],['hijab','baju'],['kerudung','baju'],['aksesori','cantik'],['aksesoris','cantik'],['perhiasan','cantik'],['kecantikan','cantik'],['tas','tas'],['sepatu','sepatu'],['elektronik','elektronik'],['gadget','elektronik'],['makanan','makanan'],['minuman','makanan'],['rumah','rumah'],['dapur','rumah'],['anak','anak'],['bayi','anak']];
 const ik=n=>{const s=String(n).toLowerCase();for(const k of IK)if(s.includes(k[0]))return TEMA.svg(k[1]);return TEMA.svg('tag')};
 
 ikon=function(wrap){
