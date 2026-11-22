@@ -1,4 +1,4 @@
-// Layanan digital (pulsa, data, PLN, tagihan, e-wallet, game).
+// Layanan digital (pulsa, data, PLN, tagihan, e-wallet, game) dan perapihan beranda.
 // Beranda: satu baris ikon yang bisa digeser (Pulsa & Tagihan, Semua, lalu kategori) dalam satu kartu, seperti marketplace.
 // Semua layanan digital muncul di halaman #/layanan.
 // Tahap 1: tampilan dan halaman "segera hadir". Transaksi akan disambung ke Digiflazz lewat fungsi server di folder api/.
@@ -68,6 +68,30 @@ function bar(){
  set();
 }
 
+// Rapikan beranda: gabungkan kartu koin/voucher/favorit ke kartu sapaan, hapus strip keunggulan,
+// dan sembunyikan kotak Terlaris/Terbaru selama produk masih sedikit (isinya hanya mengulang daftar di bawahnya).
+function rapikan(){
+ const k1=app.firstElementChild,dm=app.querySelector('.dompet');
+ if(k1&&dm&&k1!==dm&&k1.querySelector('.stat')){dm.classList.remove('box');dm.classList.add('in');k1.appendChild(dm)}
+ const u=app.querySelector('.ung');
+ if(u)u.remove();
+ const dua=app.querySelector('.dua');
+ if(dua&&app.querySelectorAll('.grid .card').length<6)dua.remove();
+}
+
+// Tampilkan nama pembeli, bukan alamat email.
+async function namaSapaan(){
+ if(!user)return;
+ const b=app.querySelector('.stat')&&app.querySelector('.oh b');
+ if(!b||b.textContent.indexOf('@')<0)return;
+ let nm='';
+ try{
+  const r=await db.from('profiles').select('nama').eq('id',user.id).maybeSingle();
+  nm=(r.data&&r.data.nama)||'';
+ }catch(e){}
+ b.textContent='Halo, '+(nm||String(user.email||'').split('@')[0]);
+}
+
 // Ganti kotak kategori di beranda dengan baris menu tunggal.
 const _bL=beranda;
 beranda=async function(){
@@ -80,6 +104,8 @@ beranda=async function(){
   kt.insertAdjacentHTML('beforebegin',h);
   kt.remove();
   bar();
+  rapikan();
+  await namaSapaan();
  }catch(e){}
 };
 })();

@@ -1,10 +1,16 @@
 /* Beranda ringkas dan layanan digital. Dimuat setelah tampilan.css. */
 
-/* Kartu ringkasan pesanan dan koin/voucher/favorit dibuat lebih rapat */
+/* Kartu sapaan, status pesanan, dan koin/voucher/favorit digabung dalam satu kartu */
 .stat{margin-top:2px}
 .stat b{font-size:15px}
 .dompet{padding:8px 4px}
 .dompet b{font-size:15px}
+.dompet.in{border-top:1px solid var(--bd);margin-top:8px;padding:8px 0 0}
+
+/* Banner lebih ramping */
+.sl{min-height:84px;padding:12px 14px}
+.sl h2{font-size:clamp(15px,4.2vw,20px)}
+.sl p{margin-bottom:8px}
 
 /* Baris menu tunggal: Pulsa & Tagihan, Semua, kategori. Geser ke samping */
 .mnu{padding:10px 0 8px}
