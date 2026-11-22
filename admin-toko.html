@@ -1,7 +1,7 @@
 <!doctype html>
-<html lang='id'><head><meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1'><meta name='robots' content='noindex'><title>Admin: Voucher dan Varian</title>
+<html lang='id'><head><meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1'><meta name='robots' content='noindex'><title>Admin: Voucher, Varian, Foto, Flash sale</title>
 <link rel='stylesheet' href='style.css'>
-<style>main{max-width:720px;margin:auto;padding:1rem}table{width:100%;border-collapse:collapse}td,th{padding:.4rem;border-bottom:1px solid #eee;text-align:left;font-size:.9rem}.r{display:flex;flex-wrap:wrap;gap:.4rem}.r input,.r select{flex:1;min-width:110px}td input{width:6rem}.x{overflow-x:auto}</style></head><body>
+<style>main{max-width:720px;margin:auto;padding:1rem}table{width:100%;border-collapse:collapse}td,th{padding:.4rem;border-bottom:1px solid #eee;text-align:left;font-size:.9rem}.r{display:flex;flex-wrap:wrap;gap:.4rem}.r input,.r select{flex:1;min-width:110px}td input{width:6rem}.x{overflow-x:auto}.fg{display:flex;flex-wrap:wrap;gap:.5rem}.fk{width:110px;text-align:center}.fk img{width:110px;height:110px;object-fit:cover;border-radius:6px;display:block}</style></head><body>
 <main id='m'><p class='msg'>Memuat...</p></main>
 <script src='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js'></script>
 <script src='config.js'></script>
@@ -9,9 +9,10 @@
 const C=window.CFG||{},$=s=>document.querySelector(s),m=$('#m'),db=supabase.createClient(C.SUPABASE_URL,C.SUPABASE_ANON_KEY);
 const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const rp=n=>'Rp'+Number(n).toLocaleString('id-ID');
-let tab='v',PID='';
+let tab='v',PID='',CUR=null;
 const keluar=async()=>{await db.auth.signOut();init()};
 const gagal=e=>{$('#c').innerHTML=`<p class='msg'>Gagal: ${esc(e.message)}</p>`};
+function kecilkan(file){return new Promise((ok,no)=>{const im=new Image(),u=URL.createObjectURL(file);im.onload=()=>{const k=Math.min(1,1600/Math.max(im.width,im.height)),cv=document.createElement('canvas');cv.width=Math.round(im.width*k);cv.height=Math.round(im.height*k);cv.getContext('2d').drawImage(im,0,0,cv.width,cv.height);URL.revokeObjectURL(u);cv.toBlob(b=>b?ok(b):no(new Error('Gagal memproses foto')),'image/jpeg',.85)};im.onerror=()=>no(new Error('Foto tidak bisa dibaca, coba JPG atau PNG'));im.src=u})}
 function login(){
  m.innerHTML=`<form id='lf' class='fm box'><h2>Masuk penjual</h2><input name='e' type='email' placeholder='Email' required><input name='p' type='password' placeholder='Kata sandi' required><button>Masuk</button><p id='e'></p></form>`;
  $('#lf').onsubmit=async ev=>{ev.preventDefault();const f=ev.target,r=await db.auth.signInWithPassword({email:f.elements.e.value.trim(),password:f.elements.p.value});if(r.error){$('#e').textContent=r.error.message;return}init()};
@@ -21,7 +22,7 @@ async function init(){
  if(!s)return login();
  const o=await db.from('sellers').select('id').eq('owner_id',s.user.id).limit(1).maybeSingle();
  if(!o.data){m.innerHTML=`<p class='msg'>Akun ini bukan penjual. <a href='#' id='k'>Keluar</a></p>`;$('#k').onclick=e=>{e.preventDefault();keluar()};return}
- m.innerHTML=`<p><a href='admin.html'>&larr; Admin utama</a> | <a href='#' id='k'>Keluar</a></p><div class='chips'><button data-t='v'>Voucher</button><button data-t='r'>Varian produk</button></div><div id='c'></div>`;
+ m.innerHTML=`<p><a href='admin.html'>&larr; Admin utama</a> | <a href='#' id='k'>Keluar</a></p><div class='chips'><button data-t='v'>Voucher</button><button data-t='r'>Varian produk</button><button data-t='f'>Foto produk</button><button data-t='s'>Flash sale</button></div><div id='c'></div>`;
  $('#k').onclick=e=>{e.preventDefault();keluar()};
  m.querySelector('.chips').onclick=e=>{const b=e.target.closest('button');if(b){tab=b.dataset.t;tampil()}};
  m.onclick=aksi;
@@ -29,7 +30,7 @@ async function init(){
 }
 function tampil(){
  m.querySelectorAll('.chips button').forEach(b=>b.classList.toggle('on',b.dataset.t===tab));
- (tab==='v'?voucherView:varianView)().catch(gagal);
+ ({v:voucherView,r:varianView,f:fotoView,s:flashView}[tab]||voucherView)().catch(gagal);
 }
 async function voucherView(){
  const r=await db.from('voucher').select('*').order('created_at',{ascending:false});
@@ -60,14 +61,76 @@ async function varianView(){
   tampil();
  };
 }
+async function fotoView(){
+ const p=await db.from('products').select('id,name,image_url,seller_id').order('name');
+ if(p.error)return gagal(p.error);
+ if(!p.data.length){$('#c').innerHTML=`<p class='msg'>Belum ada produk.</p>`;return}
+ if(!p.data.some(x=>x.id===PID))PID=p.data[0].id;
+ CUR=p.data.find(x=>x.id===PID);
+ const f=await db.from('produk_foto').select('id,url').eq('product_id',PID).order('urut').order('created_at');
+ if(f.error)return gagal(f.error);
+ const tambahan=f.data.map(x=>`<div class='fk' data-id='${x.id}' data-u='${esc(x.url)}'><img src='${esc(x.url)}' alt='' loading='lazy'><button class='line sm' data-a='fu'>Jadikan utama</button> <button class='line sm' data-a='fh'>Hapus</button></div>`).join('');
+ $('#c').innerHTML=`<div class='box fm'><select id='pp' aria-label='Produk'>${p.data.map(x=>`<option value='${x.id}'${x.id===PID?' selected':''}>${esc(x.name)}</option>`).join('')}</select><small>Foto utama tampil di kartu produk. Foto tambahan (maks. 8) tampil sebagai galeri di halaman detail.</small></div><div class='box'><h3>Foto utama</h3>${CUR.image_url?`<div class='fk'><img src='${esc(CUR.image_url)}' alt=''></div>`:`<p class='msg'>Belum ada foto utama (atur di admin utama).</p>`}</div><div class='box fm'><h3>Foto tambahan (${f.data.length}/8)</h3><div class='fg'>${tambahan||`<p class='msg'>Belum ada foto tambahan.</p>`}</div><label class='btn'>Tambah foto<input id='fi' type='file' accept='image/*' multiple hidden></label><p id='e'></p></div>`;
+ $('#pp').onchange=ev=>{PID=ev.target.value;tampil()};
+ $('#fi').onchange=async ev=>{
+  const files=[...ev.target.files],sisa=8-f.data.length,e=$('#e');
+  if(!files.length)return;
+  if(files.length>sisa){e.textContent='Sisa tempat foto: '+sisa;return}
+  e.textContent='Mengunggah...';
+  try{
+   for(let i=0;i<files.length;i++){
+    const blob=await kecilkan(files[i]),path=CUR.seller_id+'/'+Date.now()+'-'+i+'.jpg';
+    const up=await db.storage.from('produk').upload(path,blob,{contentType:'image/jpeg'});if(up.error)throw up.error;
+    const url=db.storage.from('produk').getPublicUrl(path).data.publicUrl;
+    const w=await db.from('produk_foto').insert({product_id:PID,url:url,urut:f.data.length+i});if(w.error)throw w.error;
+   }
+  }catch(x){e.textContent='Gagal: '+x.message;return}
+  tampil();
+ };
+}
+function hariIni(d){const x=new Date(d.getTime()-d.getTimezoneOffset()*60000);return x.toISOString().slice(0,16)}
+async function flashView(){
+ const p=await db.from('products').select('id,name,price,flash_persen,flash_mulai,flash_selesai').order('name');
+ if(p.error)return gagal(p.error);
+ if(!p.data.length){$('#c').innerHTML=`<p class='msg'>Belum ada produk.</p>`;return}
+ if(!p.data.some(x=>x.id===PID))PID=p.data[0].id;
+ const now=Date.now(),aktif=p.data.filter(x=>x.flash_persen);
+ const tgl=s=>new Date(s).toLocaleString('id-ID',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
+ const baris=aktif.map(x=>{
+  const jalan=now>=Date.parse(x.flash_mulai)&&now<Date.parse(x.flash_selesai),usai=now>=Date.parse(x.flash_selesai);
+  return `<tr data-id='${x.id}'><td>${esc(x.name)}</td><td>-${x.flash_persen}%<br><small>${rp(Math.max(1,Math.floor((x.price*(100-x.flash_persen)+50)/100)))}</small></td><td><small>${tgl(x.flash_mulai)}<br>${tgl(x.flash_selesai)}</small></td><td>${jalan?'Berjalan':usai?'Selesai':'Terjadwal'}</td><td><button class='line sm' data-a='sf'>Hentikan</button></td></tr>`;
+ }).join('');
+ const mulai=hariIni(new Date()),selesai=hariIni(new Date(Date.now()+86400000));
+ $('#c').innerHTML=`<form id='ff' class='box fm'><h3>Atur flash sale</h3><select name='p' aria-label='Produk'>${p.data.map(x=>`<option value='${x.id}'${x.id===PID?' selected':''}>${esc(x.name)} (${rp(x.price)})</option>`).join('')}</select><div class='r'><input name='n' type='number' min='1' max='90' placeholder='Potongan (%)' required></div><label>Mulai<input name='a' type='datetime-local' value='${mulai}' required></label><label>Selesai<input name='b' type='datetime-local' value='${selesai}' required></label><small>Potongan berlaku juga untuk harga varian. Harga akhir dihitung server saat pesanan dibuat.</small><button>Simpan</button><p id='e'></p></form>`+(aktif.length?`<div class='box x'><table><tr><th>Produk</th><th>Diskon</th><th>Waktu</th><th>Status</th><th></th></tr>${baris}</table></div>`:`<p class='msg'>Belum ada flash sale.</p>`);
+ $('#ff').onsubmit=async ev=>{
+  ev.preventDefault();const el=ev.target.elements,a=new Date(el.a.value),b=new Date(el.b.value);
+  if(!(b>a)){$('#e').textContent='Waktu selesai harus setelah waktu mulai';return}
+  PID=el.p.value;
+  const w=await db.from('products').update({flash_persen:+el.n.value,flash_mulai:a.toISOString(),flash_selesai:b.toISOString()}).eq('id',PID);
+  if(w.error){$('#e').textContent=w.error.message;return}
+  tampil();
+ };
+}
 async function aksi(ev){
  const b=ev.target.closest('button[data-a]');if(!b)return;
- const tr=b.closest('tr'),id=tr&&tr.dataset.id,a=b.dataset.a;let r;
+ const tr=b.closest('tr'),fk=b.closest('.fk'),id=(tr&&tr.dataset.id)||(fk&&fk.dataset.id),a=b.dataset.a;let r;
  b.disabled=true;
  if(a==='tv')r=await db.from('voucher').update({aktif:b.dataset.on!=='true'}).eq('id',id);
  else if(a==='hv'){if(!confirm('Hapus voucher ini?')){b.disabled=false;return}r=await db.from('voucher').delete().eq('id',id)}
  else if(a==='hv2'){if(!confirm('Hapus varian ini?')){b.disabled=false;return}r=await db.from('varian').delete().eq('id',id)}
  else if(a==='sv')r=await db.from('varian').update({harga:+tr.querySelector('[data-f=h]').value||null,stok:+tr.querySelector('[data-f=s]').value}).eq('id',id);
+ else if(a==='sf')r=await db.from('products').update({flash_persen:null,flash_mulai:null,flash_selesai:null}).eq('id',id);
+ else if(a==='fh'){
+  if(!confirm('Hapus foto ini?')){b.disabled=false;return}
+  const u=fk.dataset.u,i=u.indexOf('/object/public/produk/');
+  if(i>=0)await db.storage.from('produk').remove([decodeURIComponent(u.slice(i+22))]);
+  r=await db.from('produk_foto').delete().eq('id',id);
+ }
+ else if(a==='fu'){
+  const baru=fk.dataset.u,lama=CUR&&CUR.image_url;
+  r=await db.from('products').update({image_url:baru}).eq('id',PID);
+  if(!r.error)r=lama?await db.from('produk_foto').update({url:lama}).eq('id',id):await db.from('produk_foto').delete().eq('id',id);
+ }
  if(r&&r.error){alert(r.error.message);b.disabled=false;return}
  tampil();
 }
