@@ -1,7 +1,9 @@
 <!doctype html>
-<html lang='id'><head><meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1'><meta name='robots' content='noindex'><title>Admin: Voucher, Varian, Foto, Flash sale</title>
+<html lang='id'><head><meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1'><meta name='robots' content='noindex'><title>Admin: Voucher, Varian, Foto, Flash sale, Warna</title>
 <link rel='stylesheet' href='style.css'>
-<style>main{max-width:720px;margin:auto;padding:1rem}table{width:100%;border-collapse:collapse}td,th{padding:.4rem;border-bottom:1px solid #eee;text-align:left;font-size:.9rem}.r{display:flex;flex-wrap:wrap;gap:.4rem}.r input,.r select{flex:1;min-width:110px}td input{width:6rem}.x{overflow-x:auto}.fg{display:flex;flex-wrap:wrap;gap:.5rem}.fk{width:110px;text-align:center}.fk img{width:110px;height:110px;object-fit:cover;border-radius:6px;display:block}</style></head><body>
+<link rel='stylesheet' href='tema.css'>
+<script src='tema.js'></script>
+<style>main{max-width:720px;margin:auto;padding:1rem}table{width:100%;border-collapse:collapse}td,th{padding:.4rem;border-bottom:1px solid #eee;text-align:left;font-size:.9rem}.r{display:flex;flex-wrap:wrap;gap:.4rem}.r input,.r select{flex:1;min-width:110px}td input{width:6rem}.x{overflow-x:auto}.fg{display:flex;flex-wrap:wrap;gap:.5rem}.fk{width:110px;text-align:center}.fk img{width:110px;height:110px;object-fit:cover;border-radius:6px;display:block}.sws{display:flex;flex-wrap:wrap;gap:.6rem;margin:.5rem 0}.sws button{width:44px;height:44px;padding:0;border-radius:50%;border:3px solid #fff;box-shadow:0 0 0 1px #bbb}.sws button[aria-pressed=true]{box-shadow:0 0 0 3px var(--tx)}</style></head><body>
 <main id='m'><p class='msg'>Memuat...</p></main>
 <script src='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js'></script>
 <script src='config.js'></script>
@@ -9,7 +11,7 @@
 const C=window.CFG||{},$=s=>document.querySelector(s),m=$('#m'),db=supabase.createClient(C.SUPABASE_URL,C.SUPABASE_ANON_KEY);
 const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const rp=n=>'Rp'+Number(n).toLocaleString('id-ID');
-let tab='v',PID='',CUR=null;
+let tab='v',PID='',CUR=null,SID='';
 const keluar=async()=>{await db.auth.signOut();init()};
 const gagal=e=>{$('#c').innerHTML=`<p class='msg'>Gagal: ${esc(e.message)}</p>`};
 function kecilkan(file){return new Promise((ok,no)=>{const im=new Image(),u=URL.createObjectURL(file);im.onload=()=>{const k=Math.min(1,1600/Math.max(im.width,im.height)),cv=document.createElement('canvas');cv.width=Math.round(im.width*k);cv.height=Math.round(im.height*k);cv.getContext('2d').drawImage(im,0,0,cv.width,cv.height);URL.revokeObjectURL(u);cv.toBlob(b=>b?ok(b):no(new Error('Gagal memproses foto')),'image/jpeg',.85)};im.onerror=()=>no(new Error('Foto tidak bisa dibaca, coba JPG atau PNG'));im.src=u})}
@@ -22,7 +24,7 @@ async function init(){
  if(!s)return login();
  const o=await db.from('sellers').select('id').eq('owner_id',s.user.id).limit(1).maybeSingle();
  if(!o.data){m.innerHTML=`<p class='msg'>Akun ini bukan penjual. <a href='#' id='k'>Keluar</a></p>`;$('#k').onclick=e=>{e.preventDefault();keluar()};return}
- m.innerHTML=`<p><a href='admin.html'>&larr; Admin utama</a> | <a href='#' id='k'>Keluar</a></p><div class='chips'><button data-t='v'>Voucher</button><button data-t='r'>Varian produk</button><button data-t='f'>Foto produk</button><button data-t='s'>Flash sale</button></div><div id='c'></div>`;
+ m.innerHTML=`<p><a href='admin.html'>&larr; Admin utama</a> | <a href='#' id='k'>Keluar</a></p><div class='chips'><button data-t='v'>Voucher</button><button data-t='r'>Varian produk</button><button data-t='f'>Foto produk</button><button data-t='s'>Flash sale</button><button data-t='w'>Warna toko</button></div><div id='c'></div>`;
  $('#k').onclick=e=>{e.preventDefault();keluar()};
  m.querySelector('.chips').onclick=e=>{const b=e.target.closest('button');if(b){tab=b.dataset.t;tampil()}};
  m.onclick=aksi;
@@ -30,7 +32,7 @@ async function init(){
 }
 function tampil(){
  m.querySelectorAll('.chips button').forEach(b=>b.classList.toggle('on',b.dataset.t===tab));
- ({v:voucherView,r:varianView,f:fotoView,s:flashView}[tab]||voucherView)().catch(gagal);
+ ({v:voucherView,r:varianView,f:fotoView,s:flashView,w:warnaView}[tab]||voucherView)().catch(gagal);
 }
 async function voucherView(){
  const r=await db.from('voucher').select('*').order('created_at',{ascending:false});
@@ -113,6 +115,37 @@ async function flashView(){
   tampil();
  };
 }
+/* Warna utama toko: disimpan di kolom sellers.warna (migrasi 0018). Etalase membacanya lewat tema.js. */
+const SW=[['Violet','#5b3cc4'],['Biru','#1d4ed8'],['Hijau tosca','#0f766e'],['Merah muda','#be185d'],['Marun','#9f1239'],['Cokelat','#92400e'],['Abu gelap','#334155']];
+async function warnaView(){
+ const o=await db.from('sellers').select('id,warna').limit(1).maybeSingle();
+ if(o.error){$('#c').innerHTML=`<p class='msg'>Kolom warna belum ada. Jalankan migrasi 0018_warna_toko.sql di Supabase, lalu muat ulang halaman ini.</p>`;return}
+ SID=o.data.id;
+ const cur=TEMA.ok(o.data.warna)?o.data.warna.toLowerCase():TEMA.DEF;
+ $('#c').innerHTML=`<form id='fw' class='box fm'><h3>Warna utama toko</h3><small>Dipakai untuk header, tombol, harga, dan ikon di etalase. Aksen kuning tetap. Halaman ini ikut berubah sebagai contoh sebelum disimpan.</small><div class='sws'>${SW.map(x=>`<button type='button' data-w='${x[1]}' style='background:${x[1]}' aria-label='${x[0]}' aria-pressed='false'></button>`).join('')}</div><label>Pilih warna<input name='c' type='color' value='${cur}' style='height:44px;padding:2px'></label><label>Kode warna<input name='h' value='${cur}' maxlength='7' autocomplete='off'></label><small id='nt'></small><div class='box' style='padding:0;overflow:hidden'><div style='background:var(--o);color:#fff;padding:.7rem;display:flex;gap:.5rem;align-items:center;justify-content:space-between'><span>Cari produk</span><span style='background:#f5b301;color:#2b1b00;border-radius:8px;padding:.2rem .7rem;font-weight:700'>Cari</span></div><div style='padding:.7rem'><b class='price'>Rp150.000</b> <button type='button'>Beli</button></div></div><button>Simpan warna</button> <button type='button' class='line' data-a='wr'>Kembali ke bawaan</button><p id='e'></p></form>`;
+ const fw=$('#fw'),el=fw.elements;
+ const ubah=h=>{
+  h=h.toLowerCase();if(!TEMA.ok(h))return;
+  el.c.value=h;el.h.value=h;TEMA.pasang(h);
+  const t=TEMA.turunan(h);
+  $('#nt').textContent=t.o!==h?'Warna digelapkan sedikit menjadi '+t.o+' agar teks putih tetap terbaca.':'';
+  fw.querySelectorAll('[data-w]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.w===h)));
+ };
+ fw.onclick=ev=>{const b=ev.target.closest('[data-w]');if(b)ubah(b.dataset.w)};
+ el.c.oninput=()=>ubah(el.c.value);
+ el.h.oninput=()=>{const v=el.h.value.trim();if(TEMA.ok(v))ubah(v)};
+ ubah(cur);
+ fw.onsubmit=async ev=>{
+  ev.preventDefault();
+  const h=el.h.value.trim().toLowerCase(),e=$('#e');
+  if(!TEMA.ok(h)){e.textContent='Kode warna harus seperti #5b3cc4';return}
+  const w=await db.from('sellers').update({warna:h}).eq('id',SID).select('id');
+  if(w.error){e.textContent=w.error.message;return}
+  if(!w.data.length){e.textContent='Tidak diizinkan mengubah warna toko';return}
+  TEMA.pasang(h,true);
+  e.textContent='Tersimpan. Etalase memakai warna baru saat dimuat ulang.';
+ };
+}
 async function aksi(ev){
  const b=ev.target.closest('button[data-a]');if(!b)return;
  const tr=b.closest('tr'),fk=b.closest('.fk'),id=(tr&&tr.dataset.id)||(fk&&fk.dataset.id),a=b.dataset.a;let r;
@@ -123,6 +156,11 @@ async function aksi(ev){
  else if(a==='hv2'){if(!confirm('Hapus varian ini?')){b.disabled=false;return}r=await db.from('varian').delete().eq('id',id)}
  else if(a==='sv')r=await db.from('varian').update({harga:+tr.querySelector('[data-f=h]').value||null,stok:+tr.querySelector('[data-f=s]').value}).eq('id',id);
  else if(a==='sf')r=await db.from('products').update({flash_persen:null,flash_mulai:null,flash_selesai:null}).eq('id',id);
+ else if(a==='wr'){
+  r=await db.from('sellers').update({warna:null}).eq('id',SID).select('id');
+  if(!r.error&&!r.data.length)r={error:{message:'Tidak diizinkan mengubah warna toko'}};
+  if(!r.error)TEMA.pasang(TEMA.DEF,true);
+ }
  else if(a==='fh'){
   if(!confirm('Hapus foto ini?')){b.disabled=false;return}
   const u=fk.dataset.u,i=u.indexOf('/object/public/produk/');
