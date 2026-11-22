@@ -1,8 +1,9 @@
 // Tambahan etalase: urut dan filter harga, muat lagi, flash sale, rating di kartu, multi-foto, produk terkait,
-// bagikan, segarkan harga keranjang, dan PWA. Memakai global dari app.js; dimuat paling akhir.
+// bagikan, segarkan harga keranjang, dan PWA. Memakai global dari app.js; dimuat setelah modul lain.
 // Dibungkus fungsi agar nama di sini tidak bentrok dengan modul lain.
 (()=>{
 const CACHE={};
+const KOLOM='id,name,price,harga_coret,image_url,stock,category_id,flash_persen,flash_mulai,flash_selesai';
 let URUT='baru',MIN='',MAKS='',BATAS=24,LH='',LIST=[],ARG=[],TS=0;
 const flashAktif=p=>!!(p&&p.flash_persen&&Date.now()>=Date.parse(p.flash_mulai)&&Date.now()<Date.parse(p.flash_selesai));
 // Pembulatan sama dengan harga_flash() di database (setengah ke atas).
@@ -11,7 +12,7 @@ const hargaEf=p=>hargaFlash(p.price,p);
 const tglFl=s=>new Date(s).toLocaleString('id-ID',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
 
 ambilProduk=async function(f){
- let q=db.from('products').select('id,name,price,harga_coret,image_url,stock,category_id,flash_persen,flash_mulai,flash_selesai').eq('is_active',true).order('created_at',{ascending:false}).limit(200);
+ let q=db.from('products').select(KOLOM).eq('is_active',true).order('created_at',{ascending:false}).limit(200);
  if(f.kat)q=q.eq('category_id',f.kat);
  if(f.cari)q=q.ilike('name','%'+f.cari.replace(/[%_,()]/g,' ')+'%');
  const[p,t,r]=await Promise.all([q,db.from('produk_terjual').select('product_id,terjual'),db.from('produk_rating').select('product_id,rata,jumlah')]);
@@ -21,6 +22,23 @@ ambilProduk=async function(f){
  (r.data||[]).forEach(x=>{R[x.product_id]=x});
  return p.data.map(x=>{const o={...x,terjual:T[x.id]||0,rata:R[x.id]?+R[x.id].rata:0,jumlah:R[x.id]?R[x.id].jumlah:0};CACHE[x.id]=o;return o});
 };
+
+// Produk terkait: hanya 6 produk (bukan seluruh katalog) beserta jumlah terjual dan ratingnya.
+async function ambilTerkait(id,kat){
+ let q=db.from('products').select(KOLOM).eq('is_active',true).neq('id',id).order('created_at',{ascending:false}).limit(6);
+ if(kat)q=q.eq('category_id',kat);
+ const p=await q;
+ if(p.error||!p.data||!p.data.length)return [];
+ const ids=p.data.map(x=>x.id);
+ const[t,r]=await Promise.all([
+  db.from('produk_terjual').select('product_id,terjual').in('product_id',ids),
+  db.from('produk_rating').select('product_id,rata,jumlah').in('product_id',ids)
+ ]);
+ const T={},R={};
+ (t.data||[]).forEach(x=>{T[x.product_id]=x.terjual});
+ (r.data||[]).forEach(x=>{R[x.product_id]=x});
+ return p.data.map(x=>{const o={...x,terjual:T[x.id]||0,rata:R[x.id]?+R[x.id].rata:0,jumlah:R[x.id]?R[x.id].jumlah:0};CACHE[x.id]=o;return o});
+}
 
 // Harga flash, badge, dan rating pada kartu produk yang sudah tampil.
 function hias(root){
@@ -113,10 +131,10 @@ async function lengkapiDetail(id){
   };
  }
 
- let rel=(await ambilProduk(P.category_id?{kat:P.category_id}:{})).filter(x=>x.id!==id);
- if(!rel.length&&P.category_id)rel=(await ambilProduk({})).filter(x=>x.id!==id);
+ let rel=await ambilTerkait(id,P.category_id);
+ if(!rel.length&&P.category_id)rel=await ambilTerkait(id,null);
  if(!rel.length||!location.hash.startsWith('#/p/'+id))return;
- app.insertAdjacentHTML('beforeend',`<h3 class='jd'>Produk terkait</h3>`+gridHtml(rel.slice(0,6)));
+ app.insertAdjacentHTML('beforeend',`<h3 class='jd'>Produk terkait</h3>`+gridHtml(rel));
  hias(app);
 }
 const _dEt=detail;
