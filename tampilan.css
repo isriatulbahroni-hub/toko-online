@@ -4,7 +4,7 @@ header{background:linear-gradient(180deg,#f53d2d,#ee4d2d)}
 #cari input{font-size:14px}
 #cari button{border-radius:3px;padding:4px 14px}
 
-/* Kartu koin, favorit, notifikasi */
+/* Kartu koin, voucher, favorit */
 .dompet{display:grid;grid-template-columns:repeat(3,1fr);text-align:center;padding:10px 4px}
 .dompet a{text-decoration:none}
 .dompet a+a{border-left:1px solid var(--bd)}
@@ -40,3 +40,21 @@ h3.jd{margin:10px -8px 6px;padding:10px 0 8px;border-bottom:2px solid var(--o);b
 .ung>div:first-child{border-left:0}
 .ung b{font-size:12px}
 .ung small{color:var(--mut)}
+
+/* Pusat voucher */
+.vc{display:flex;align-items:stretch;padding:0;overflow:hidden;border:1px solid #fbd9d0}
+.vl{flex:0 0 84px;background:var(--o);color:#fff;display:grid;place-content:center;text-align:center;padding:8px 4px}
+.vl b{font-size:20px;line-height:1.1}
+.vr{flex:1;min-width:0;padding:8px 10px;display:flex;flex-direction:column;gap:2px}
+.vr small{color:var(--mut)}
+.vr code{background:#fff4f0;border:1px dashed var(--o);color:var(--o);padding:1px 6px;border-radius:4px;align-self:flex-start;font-weight:700}
+.va{display:flex;align-items:center;padding:0 10px}
+
+/* Koin harian */
+.saldo{text-align:center}
+.saldo b{display:block;font-size:30px;color:var(--o)}
+.hari{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin:8px 0}
+.hari div{text-align:center;border:1px solid var(--bd);border-radius:8px;padding:6px 0;font-size:10px}
+.hari div b{display:block;font-size:13px}
+.hari .sel{background:#fff4f0;border-color:var(--o);color:var(--o)}
+.hari .now{border:2px solid var(--o)}

@@ -1,5 +1,5 @@
-// Tampilan beranda gaya marketplace: ikon kategori 2 baris, kartu koin/favorit/notifikasi, strip flash sale,
-// dan placeholder pencarian. Dimuat paling akhir. Hanya mengubah tampilan beranda; logika lain tetap.
+// Tampilan beranda gaya marketplace: ikon kategori 2 baris, kartu koin/voucher/favorit, strip flash sale,
+// dan placeholder pencarian. Dimuat setelah modul lain. Hanya mengubah tampilan beranda; logika lain tetap.
 (()=>{
 const IK=[['songket',129525],['kain',129525],['selendang',129507],['syal',129507],['busana',128087],['baju',128087],['gamis',128087],['wanita',128087],['aksesori',128141],['aksesoris',128141],['perhiasan',128141],['tas',128092],['sepatu',128095],['hijab',129493],['kerudung',129493],['elektronik',128268],['makanan',127836],['minuman',129380],['kecantikan',128132],['rumah',127968],['anak',129528],['pria',128084]];
 const emoji=n=>{const s=String(n).toLowerCase();for(const k of IK)if(s.includes(k[0]))return '&#'+k[1]+';';return '&#128717;'};
@@ -40,7 +40,7 @@ async function dompet(){
  if((location.hash||'#/')!=='#/'||app.querySelector('.dompet'))return;
  const box=app.querySelector('.box');
  if(!box)return;
- box.insertAdjacentHTML('afterend',`<div class='box dompet'><a href='#/saya'><b>&#129689; ${n}</b><small>Koin saya</small></a><a href='#/favorit'><b>&#9825;</b><small>Favorit</small></a><a href='#/notif'><b>&#128276;</b><small>Notifikasi</small></a></div>`);
+ box.insertAdjacentHTML('afterend',`<div class='box dompet'><a href='#/koin'><b>&#129689; ${n}</b><small>Koin saya</small></a><a href='#/voucher'><b>&#127873;</b><small>Voucher</small></a><a href='#/favorit'><b>&#9825;</b><small>Favorit</small></a></div>`);
 }
 
 const _bT=beranda;
