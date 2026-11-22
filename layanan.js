@@ -2,20 +2,20 @@
 // Beranda: satu baris ikon yang bisa digeser (Pulsa & Tagihan, Semua, lalu kategori) dalam satu kartu, seperti marketplace.
 // Semua layanan digital muncul di halaman #/layanan.
 // Tahap 1: tampilan dan halaman "segera hadir". Transaksi akan disambung ke Digiflazz lewat fungsi server di folder api/.
-// Dimuat setelah pusat.js. Memakai global dari app.js dan akun.js.
+// Dimuat setelah pusat.js. Memakai global dari app.js dan akun.js. Ikon dari tema.js.
 (()=>{
 const LAY=[
- ['pulsa','Pulsa','&#128241;','Isi pulsa semua operator'],
- ['data','Paket Data','&#127760;','Paket kuota internet semua operator'],
- ['pln','Token PLN','&#9889;','Token listrik prabayar'],
- ['listrik','Tagihan Listrik','&#128161;','Bayar listrik pascabayar'],
- ['pdam','PDAM','&#128167;','Bayar tagihan air'],
- ['bpjs','BPJS','&#127973;','Bayar iuran BPJS Kesehatan'],
- ['ewallet','E-Wallet','&#128179;','Top up dompet digital'],
- ['game','Voucher Game','&#127918;','Top up diamond dan voucher game'],
- ['internet','Internet & TV','&#128250;','Bayar tagihan internet dan TV kabel']
+ ['pulsa','Pulsa','pulsa','Isi pulsa semua operator'],
+ ['data','Paket Data','data','Paket kuota internet semua operator'],
+ ['pln','Token PLN','petir','Token listrik prabayar'],
+ ['listrik','Tagihan Listrik','bohlam','Bayar listrik pascabayar'],
+ ['pdam','PDAM','air','Bayar tagihan air'],
+ ['bpjs','BPJS','bpjs','Bayar iuran BPJS Kesehatan'],
+ ['ewallet','E-Wallet','dompet','Top up dompet digital'],
+ ['game','Voucher Game','game','Top up diamond dan voucher game'],
+ ['internet','Internet & TV','tv','Bayar tagihan internet dan TV kabel']
 ];
-const ikn=l=>`<a href='#/layanan/${l[0]}'><i>${l[2]}</i>${esc(l[1])}</a>`;
+const ikn=l=>`<a href='#/layanan/${l[0]}'><i>${TEMA.svg(l[2])}</i>${esc(l[1])}</a>`;
 const judul2=(t,h)=>`<h2 class='hd'><a href='${h||'#/'}' aria-label='Kembali'>&larr;</a>${t}</h2>`;
 
 // Semua layanan, tampil setelah Pulsa & Tagihan ditekan.
@@ -28,7 +28,7 @@ function halaman(id){
  if(!l)return `<p class='msg'>Layanan tidak ditemukan. <a href='#/layanan'>Lihat semua layanan</a></p>`;
  const wa=C.WA?`<a class='btn line' href='https://wa.me/${esc(C.WA)}?text=${encodeURIComponent('Halo, saya mau tanya layanan '+l[1])}'>Tanya via WhatsApp</a>`:'';
  return judul2(esc(l[1]),'#/layanan')+
-  `<div class='box lay-soon'><i>${l[2]}</i><b>Segera hadir</b><p>${esc(l[3])} sedang kami siapkan. Nantikan ya.</p>${wa}</div>`+
+  `<div class='box lay-soon'><i>${TEMA.svg(l[2])}</i><b>Segera hadir</b><p>${esc(l[3])} sedang kami siapkan. Nantikan ya.</p>${wa}</div>`+
   `<div class='box'><b>Layanan lainnya</b><div class='lay-g'>${LAY.filter(x=>x[0]!==id).map(ikn).join('')}</div></div>`;
 }
 
@@ -50,7 +50,7 @@ AKUN.route=async function(h){
 
 // Satu baris menu: Pulsa & Tagihan di depan, lalu Semua dan kategori toko.
 function menu(kt){
- const it=[`<a href='#/layanan'><i>&#128241;</i>Pulsa &amp; Tagihan</a>`].concat(Array.from(kt.children).map(a=>a.outerHTML));
+ const it=[`<a href='#/layanan'><i>${TEMA.svg('pulsa')}</i>Pulsa &amp; Tagihan</a>`].concat(Array.from(kt.children).map(a=>a.outerHTML));
  return `<div class='box mnu'><div class='mnu-r' id='mnur'>${it.join('')}</div><div class='mnu-b'><i id='mnui'></i></div></div>`;
 }
 

@@ -4,7 +4,7 @@ let avHs='';
 function isiHs(){
  const nama=(user.user_metadata||{}).nama||user.email;
  const wa=C.WA?`href='https://wa.me/${esc(C.WA)}' target='_blank' rel='noopener'`:`href='#/info'`;
- HS.innerHTML=`<a href='#/akun' aria-label='Ubah profil'><span class='av'>${avHs||esc(nama.charAt(0).toUpperCase())}</span></a><div class='hn'><b>${esc(nama)}</b>${nama!==user.email?`<small>${esc(user.email)}</small>`:''}<a href='#/akun'>Ubah profil &rsaquo;</a></div><a href='#/pengaturan' aria-label='Pengaturan'>&#9881;</a><a href='#/keranjang' aria-label='Keranjang'>&#128722;<i class='bdg kbd' hidden></i></a><a ${wa} aria-label='Chat penjual'>&#128172;</a>`;
+ HS.innerHTML=`<a href='#/akun' aria-label='Ubah profil'><span class='av'>${avHs||esc(nama.charAt(0).toUpperCase())}</span></a><div class='hn'><b>${esc(nama)}</b>${nama!==user.email?`<small>${esc(user.email)}</small>`:''}<a href='#/akun'>Ubah profil &rsaquo;</a></div><a href='#/pengaturan' aria-label='Pengaturan'>${TEMA.svg('gear')}</a><a href='#/keranjang' aria-label='Keranjang'>${TEMA.svg('keranjang')}<i class='bdg kbd' hidden></i></a><a ${wa} aria-label='Chat penjual'>${TEMA.svg('chat')}</a>`;
  upd();
 }
 function sinkronHs(){

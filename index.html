@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang='id'><head><meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1,viewport-fit=cover'><meta name='theme-color' content='#ee4d2d'><title>Garery Songket Sari Melati</title>
+<html lang='id'><head><meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1,viewport-fit=cover'><meta id='tc' name='theme-color' content='#5b3cc4'><title>Garery Songket Sari Melati</title>
 <meta name='description' content='Belanja berbagai produk pilihan di Garery Songket Sari Melati. Stok terlihat langsung, pesanan mudah dipantau.'>
 <meta property='og:title' content='Garery Songket Sari Melati'><meta property='og:site_name' content='Garery Songket Sari Melati'><meta property='og:type' content='website'><meta property='og:description' content='Belanja berbagai produk pilihan. Stok terlihat langsung, pesanan mudah dipantau.'>
 <link rel='manifest' href='manifest.webmanifest'>
@@ -10,12 +10,14 @@
 <link rel='stylesheet' href='etalase.css'>
 <link rel='stylesheet' href='tampilan.css'>
 <link rel='stylesheet' href='layanan.css'>
+<link rel='stylesheet' href='tema.css'>
+<script src='tema.js'></script>
 </head><body>
-<header><form id='cari'><input id='q' placeholder='Cari produk' aria-label='Cari produk' maxlength='80'><button>Cari</button></form><a href='#/keranjang' aria-label='Keranjang'>&#128722;<i class='bdg kbd' hidden></i></a><a id='wa' href='#/info' aria-label='Chat penjual'>&#128172;</a></header>
+<header><form id='cari'><input id='q' placeholder='Cari produk' aria-label='Cari produk' maxlength='80'><button>Cari</button></form><a href='#/keranjang' aria-label='Keranjang'><svg class='ic' viewBox='0 0 24 24' aria-hidden='true'><circle cx='9' cy='20' r='1.5'/><circle cx='18' cy='20' r='1.5'/><path d='M2 3h3l2.5 12h11L21 7H6'/></svg><i class='bdg kbd' hidden></i></a><a id='wa' href='#/info' aria-label='Chat penjual'><svg class='ic' viewBox='0 0 24 24' aria-hidden='true'><path d='M4 5h16v11H9l-5 4z'/></svg></a></header>
 <header id='hs'></header>
 <main id='app'></main>
 <footer id='ft'></footer>
-<nav id='tab'><a href='#/' data-t='b'><b>&#127968;</b>Beranda</a><a href='#/kategori' data-t='k'><b>&#9776;</b>Kategori</a><a href='#/keranjang' data-t='c'><b>&#128722;</b>Keranjang<i class='bdg kbd' hidden></i></a><a href='#/pesanan' data-t='p'><b>&#128230;</b>Pesanan</a><a href='#/saya' data-t='s'><b>&#128100;</b>Saya</a></nav>
+<nav id='tab'><a href='#/' data-t='b'><b><svg class='ic' viewBox='0 0 24 24' aria-hidden='true'><path d='M3 11l9-8 9 8'/><path d='M5 10v10h14V10'/></svg></b>Beranda</a><a href='#/kategori' data-t='k'><b><svg class='ic' viewBox='0 0 24 24' aria-hidden='true'><rect x='4' y='4' width='6.5' height='6.5' rx='1'/><rect x='13.5' y='4' width='6.5' height='6.5' rx='1'/><rect x='4' y='13.5' width='6.5' height='6.5' rx='1'/><rect x='13.5' y='13.5' width='6.5' height='6.5' rx='1'/></svg></b>Kategori</a><a href='#/keranjang' data-t='c'><b><svg class='ic' viewBox='0 0 24 24' aria-hidden='true'><circle cx='9' cy='20' r='1.5'/><circle cx='18' cy='20' r='1.5'/><path d='M2 3h3l2.5 12h11L21 7H6'/></svg></b>Keranjang<i class='bdg kbd' hidden></i></a><a href='#/pesanan' data-t='p'><b><svg class='ic' viewBox='0 0 24 24' aria-hidden='true'><path d='M12 2l9 5v10l-9 5-9-5V7z'/><path d='M3 7l9 5 9-5M12 12v10'/></svg></b>Pesanan</a><a href='#/saya' data-t='s'><b><svg class='ic' viewBox='0 0 24 24' aria-hidden='true'><circle cx='12' cy='8' r='4'/><path d='M4 21c0-4 4-6 8-6s8 2 8 6'/></svg></b>Saya</a></nav>
 <script src='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js'></script>
 <script src='config.js'></script>
 <script src='app.js'></script>
