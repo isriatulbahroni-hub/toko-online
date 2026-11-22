@@ -1,0 +1,11 @@
+/* Header halaman Saya (mirip Shopee). Aktif saat body punya kelas 'saya' (diatur header.js). */
+#hs{display:none;position:static;align-items:center;gap:14px;padding:14px 12px 16px;padding-top:calc(14px + env(safe-area-inset-top));background:linear-gradient(#f53d2d,#f6683f)}
+body.saya>header{display:none}
+body.saya>#hs{display:flex}
+body.saya #app>.prof{display:none}
+#hs>a{font-size:22px}
+#hs .av{width:56px;height:56px;background:#fff;color:var(--o);font-size:22px;overflow:hidden;border:2px solid #fff}
+.hn{flex:1;min-width:0;color:#fff}
+.hn b{display:block;font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hn small{display:block;opacity:.9;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hn a{display:inline-block;margin-top:4px;background:rgba(255,255,255,.25);border-radius:10px;padding:1px 10px;font-size:11px;color:#fff;text-decoration:none}
