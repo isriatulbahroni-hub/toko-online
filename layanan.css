@@ -1,0 +1,16 @@
+/* Layanan digital di beranda. Dimuat setelah tampilan.css. */
+.lay{padding:10px 0 8px}
+.lay-r{display:flex;overflow-x:auto;scrollbar-width:none;padding:0 6px}
+.lay-r::-webkit-scrollbar{display:none}
+.lay-r a{flex:0 0 22%;min-width:0}
+.lay-r a,.lay-g a{text-align:center;text-decoration:none;font-size:11px;padding:0 2px;color:inherit}
+.lay-r i,.lay-g i{display:grid;place-content:center;width:46px;height:46px;margin:0 auto 4px;border-radius:14px;background:#fff4f0;border:1px solid #fbd9d0;font-size:22px;font-style:normal}
+.lay-b{width:44px;height:4px;border-radius:2px;background:#eee;margin:8px auto 0;overflow:hidden}
+.lay-b i{display:block;height:100%;width:40%;background:var(--o);border-radius:2px}
+
+/* Halaman layanan (segera hadir) */
+.lay-g{display:grid;grid-template-columns:repeat(4,1fr);gap:10px 2px;margin-top:10px}
+.lay-soon{text-align:center;padding:28px 14px}
+.lay-soon i{display:block;font-size:44px;font-style:normal;margin-bottom:6px}
+.lay-soon b{display:block;font-size:17px;color:var(--o)}
+.lay-soon p{color:var(--mut);margin:6px 0 12px}
