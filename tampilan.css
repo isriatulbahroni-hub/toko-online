@@ -1,0 +1,58 @@
+/* Tampilan mirip Shopee: bar cari dengan lup, ikon garis, strip koin, kategori dua baris, Flash Sale, kartu produk, tab bawah. */
+header{padding-bottom:8px}
+header>a svg{width:26px;height:26px;display:block}
+#cari{align-items:center;border-radius:4px;padding:2px 2px 2px 8px}
+#cari .lup{display:grid;place-items:center;color:var(--o)}
+#cari .lup svg{width:18px;height:18px}
+#cari input{padding:8px 6px;font-size:14px}
+#cari button{border-radius:3px}
+
+/* Strip pesanan, koin, favorit */
+.wal{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));padding:10px 4px}
+.wal a{display:flex;align-items:center;gap:8px;text-decoration:none;padding:0 8px;min-width:0}
+.wal a+a{border-left:1px solid var(--bd)}
+.wal svg{width:26px;height:26px;color:var(--o);flex-shrink:0}
+.wal span{display:flex;flex-direction:column;min-width:0}
+.wal b{font-size:14px;line-height:1.2}
+.wal small{color:var(--mut);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.koin{display:grid;place-items:center;width:26px;height:26px;border-radius:50%;background:radial-gradient(#ffd54f,#f9a825);color:#fff;font:700 14px system-ui;border:2px solid #fbc02d;flex-shrink:0;font-style:normal}
+
+/* Ikon kategori */
+.ikw{padding:10px 0 8px}
+.ikon.sh{display:grid;grid-auto-flow:column;grid-auto-columns:20%;gap:8px 0;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none}
+.ikon.sh.dua-b{grid-template-rows:repeat(2,auto)}
+.ikon.sh a{flex:none;scroll-snap-align:start;padding:0 2px}
+.ikon.wrap{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px 0}
+.ikon.wrap a{flex:none}
+.ikon a{font-size:11px;line-height:1.2;overflow-wrap:anywhere}
+.ikon i{width:46px;height:46px;border-radius:14px;background:#fff;border:1px solid #eee;box-shadow:0 1px 3px #0001;font:400 22px system-ui;color:inherit}
+.gl{position:relative;overflow:hidden;width:36px;height:4px;border-radius:2px;background:#eee;margin:8px auto 0}
+.gl i{position:absolute;top:0;bottom:0;left:0;background:var(--o);border-radius:2px}
+
+/* Flash Sale */
+.fs{padding:8px 0 10px}
+.fs .oh{padding:0 10px}
+.fh{display:flex;align-items:center;gap:8px}
+.fj{color:var(--o);font-style:italic;font-size:14px;letter-spacing:.2px}
+.cd{display:flex;align-items:center;gap:2px;font-weight:700}
+.cd i{background:#222;color:#fff;font:700 11px/16px system-ui;padding:0 4px;border-radius:3px;font-style:normal;min-width:20px;text-align:center}
+.fr{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding:8px 10px 0}
+.fr a{flex:0 0 104px;text-decoration:none;min-width:0}
+.fr .im img,.fr .ph{border-radius:4px}
+.fp{display:block;color:var(--o);font-size:14px;margin-top:4px}
+.fr s{color:var(--mut)}
+
+/* Kartu produk dan judul rekomendasi */
+.grid{gap:8px 6px}
+.card{border-radius:4px}
+.card .price{font-size:14px}
+h3.jd{display:flex;align-items:center;gap:10px;color:var(--o);text-transform:uppercase;font-size:13px;letter-spacing:.3px}
+h3.jd::before,h3.jd::after{content:'';flex:1;height:1px;background:#ddd}
+
+/* Tab bawah */
+#tab{padding-top:2px}
+#tab a{padding:5px 0}
+#tab a b{line-height:0}
+#tab a svg{width:24px;height:24px;display:block;margin:0 auto 3px}
+#tab a.on svg{fill:currentColor;fill-opacity:.16;stroke-width:2.1}
+#hs>a svg{width:26px;height:26px;display:block}
