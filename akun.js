@@ -30,9 +30,9 @@ function formH(id,fn){
  };
 }
 
-const AKUN={
+var AKUN={
  async route(h){
-  const peta={'/saya':hub,'/akun':akunView,'/alamat':alamatView,'/favorit':favoritView,'/notif':notifView,'/bantuan':bantuanView,'/privasi':privasiView,'/tentang':tentangView};
+  const peta={'/saya':hub,'/pengaturan':pengaturanView,'/akun':akunView,'/alamat':alamatView,'/favorit':favoritView,'/notif':notifView,'/bantuan':bantuanView,'/privasi':privasiView,'/tentang':tentangView};
   const fn=peta[h];
   if(!fn)return false;
   if(['/akun','/alamat','/favorit','/notif'].includes(h)&&!user){perluMasuk('#'+h);return true}
@@ -42,21 +42,23 @@ const AKUN={
 };
 
 async function hub(){
- let c={},nf=0,na=0,nn=0;
+ let c={},nf=0,na=0,nn=0,lengkap=true;
  if(user){
-  const[o,f,a]=await Promise.all([
+  const[o,f,a,pf]=await Promise.all([
    db.from('orders').select('status,bukti_path').eq('buyer_id',user.id),
    db.from('favorit').select('product_id',{count:'exact',head:true}),
-   db.from('alamat_saya').select('id',{count:'exact',head:true})
+   db.from('alamat_saya').select('id',{count:'exact',head:true}),
+   db.from('profiles').select('tgl_lahir,gender').eq('id',user.id).maybeSingle()
   ]);
+  lengkap=pf.error||!pf.data||(pf.data.tgl_lahir&&pf.data.gender);
   (o.data||[]).forEach(x=>{c[x.status]=(c[x.status]||0)+1;if((x.status==='baru'&&!x.bukti_path)||x.status==='dikirim')nn++});
   nf=f.count||0;na=a.count||0;
  }
  const nama=user?((user.user_metadata||{}).nama||user.email):'';
  const ik=(k,e,l)=>`<a href='#/pesanan/${k}'><span class='ei'>${e}${c[k]?`<i class='bdg'>${c[k]}</i>`:''}</span>${l}</a>`;
  const atas=user?
-  `<div class='box prof'><span class='av'>${esc(nama.charAt(0).toUpperCase())}</span><span><b>${esc(nama)}</b><br><small>${esc(user.email)}</small></span><a class='btn line sm' href='#/akun'>Ubah profil</a></div>`+
-  `<div class='box'><div class='oh'><b>Pesanan Saya</b><a href='#/pesanan'>Lihat riwayat &rsaquo;</a></div><div class='pil'>${ik('baru','&#128179;','Belum bayar')}${ik('dibayar','&#128230;','Diproses')}${ik('dikirim','&#128666;','Dikirim')}${ik('selesai','&#9989;','Selesai')}${ik('batal','&#10060;','Batal')}</div></div>`+
+  (lengkap?'':`<div class='box oh'><span>Lengkapi tanggal lahir dan jenis kelamin Anda.</span><a class='btn line sm' href='#/akun'>Atur</a></div>`)+`<div class='box prof'><span class='av'>${esc(nama.charAt(0).toUpperCase())}</span><span><b>${esc(nama)}</b><br><small>${esc(user.email)}</small></span><a class='btn line sm' href='#/akun'>Ubah profil</a><a href='#/pengaturan' aria-label='Pengaturan'>&#9881;</a></div>`+
+  `<div class='box'><div class='oh'><b>Pesanan Saya</b><a href='#/pesanan'>Lihat riwayat &rsaquo;</a></div><div class='pil'>${ik('baru','&#128179;','Belum bayar')}${ik('dibayar','&#128230;','Dikemas')}${ik('dikirim','&#128666;','Dikirim')}${ik('selesai','&#9989;','Selesai')}${ik('batal','&#10060;','Batal')}</div></div>`+
   `<div class='sec'>Akun Saya</div><div class='box mn'>${baris('#/akun','Akun &amp; Keamanan')}${baris('#/alamat','Alamat Saya',na?na+' alamat':'')}${baris('#/favorit','Favorit Saya',nf?String(nf):'')}${baris('#/notif','Notifikasi',nn?`<b class='pill'>${nn}</b>`:'')}</div>`:
   `<div class='box oh'><span><b>Selamat datang</b><br><small>Masuk untuk membeli dan memantau pesanan</small></span><span class='sapa'><a class='btn sm' href='#/masuk'>Masuk</a><a class='btn line sm' href='#/daftar'>Daftar</a></span></div>`;
  const wa=waLink('')?`<a href='${waLink('')}' target='_blank' rel='noopener'><span>Hubungi Penjual</span><span class='ek'><i>&rsaquo;</i></span></a>`:'';
@@ -64,16 +66,21 @@ async function hub(){
 }
 
 async function akunView(){
- const pr=(await db.from('profiles').select('nama,telp').eq('id',user.id).maybeSingle()).data||{};
+ let ext=true,q=await db.from('profiles').select('nama,telp,tgl_lahir,gender').eq('id',user.id).maybeSingle();
+ if(q.error){ext=false;q=await db.from('profiles').select('nama,telp').eq('id',user.id).maybeSingle()}
+ const pr=q.data||{},gd=pr.gender||'';
+ const extHtml=ext?`<input name='l' type='date' aria-label='Tanggal lahir' max='${new Date().toISOString().slice(0,10)}' value='${esc(pr.tgl_lahir||'')}'><select name='g' aria-label='Jenis kelamin'><option value=''>Jenis kelamin</option><option value='pria'${gd==='pria'?' selected':''}>Pria</option><option value='wanita'${gd==='wanita'?' selected':''}>Wanita</option><option value='lainnya'${gd==='lainnya'?' selected':''}>Lainnya</option></select>`:`<small>Tanggal lahir dan jenis kelamin aktif setelah <b>0008_profil_lengkap.sql</b> dijalankan.</small>`;
  app.innerHTML=judul('Akun &amp; Keamanan')+
- `<form id='fp' class='box fm'><h3>Profil</h3><input name='n' placeholder='Nama lengkap' maxlength='100' value='${esc(pr.nama||(user.user_metadata||{}).nama||'')}' required><input name='t' type='tel' placeholder='No. WhatsApp' pattern='[0-9+ -]{8,20}' value='${esc(pr.telp||'')}'><button class='sm'>Simpan profil</button><small class='mg'></small></form>`+
+ `<form id='fp' class='box fm'><h3>Profil</h3><input name='n' placeholder='Nama lengkap' maxlength='100' value='${esc(pr.nama||(user.user_metadata||{}).nama||'')}' required><input name='t' type='tel' placeholder='No. WhatsApp' pattern='[0-9+ -]{8,20}' value='${esc(pr.telp||'')}'>${extHtml}<button class='sm'>Simpan profil</button><small class='mg'></small></form>`+
  `<form id='fe' class='box fm'><h3>Email</h3><input name='e' type='email' value='${esc(user.email)}' required><button class='sm'>Ubah email</button><small class='mg'></small><p><small>Perubahan berlaku setelah Anda mengonfirmasi lewat tautan yang dikirim ke email.</small></p></form>`+
  `<form id='fs' class='box fm'><h3>Kata sandi</h3><input name='p' type='password' placeholder='Kata sandi baru (minimal 8 karakter)' minlength='8' required><input name='p2' type='password' placeholder='Ulangi kata sandi baru' minlength='8' required><button class='sm'>Ubah kata sandi</button><small class='mg'></small></form>`+
  `<div class='box'><h3>Keamanan</h3><p><small>Keluar dari akun ini di semua perangkat, misalnya jika HP hilang.</small></p><button id='gl' class='line sm'>Keluar dari semua perangkat</button></div>`+
  `<div class='box'><h3>Permohonan Penghapusan Akun</h3><p><small>Permohonan dikirim ke penjual lewat WhatsApp dan diproses oleh penjual.</small></p><button id='hp' class='line sm'>Ajukan penghapusan akun</button></div>`;
  formH('fp',async el=>{
   const n=el.n.value.trim(),t=el.t.value.trim();
-  const r=await db.from('profiles').upsert({id:user.id,nama:n,telp:t,updated_at:new Date().toISOString()});
+  const row={id:user.id,nama:n,telp:t,updated_at:new Date().toISOString()};
+  if(ext){row.tgl_lahir=el.l.value||null;row.gender=el.g.value||null}
+  const r=await db.from('profiles').upsert(row);
   if(r.error)throw r.error;
   await db.auth.updateUser({data:{nama:n}});
   return 'Profil disimpan';
@@ -179,4 +186,9 @@ function privasiView(){
 }
 function tentangView(){
  app.innerHTML=judul('Tentang')+`<div class='box'><h3>${esc(namaToko())}</h3><p>Toko online dengan stok yang terlihat langsung dan pesanan yang bisa dipantau dari akun Anda.</p><p><small>Versi ${VERSI}</small></p>${waLink('')?`<p><a class='btn sm' href='${waLink('')}' target='_blank' rel='noopener'>Hubungi penjual</a></p>`:''}<p><a href='#/info'>Kebijakan dan info toko</a></p></div>`;
+}
+
+function pengaturanView(){
+ document.querySelectorAll('#tab a').forEach(a=>a.classList.toggle('on',a.dataset.t==='s'));
+ app.innerHTML=judul('Pengaturan Akun')+`<div class='sec'>Akun Saya</div><div class='box mn'>${baris('#/akun','Akun &amp; Keamanan')}${baris('#/alamat','Alamat Saya')}</div><div class='sec'>Pengaturan</div><div class='box mn'>${baris('#/notif','Notifikasi')}${baris('#/privasi','Privasi')}</div><div class='sec'>Sokongan</div><div class='box mn'>${baris('#/bantuan','Pusat Bantuan')}${baris('#/info','Kebijakan Toko')}${baris('#/tentang','Tentang')}</div>`+(user?`<a class='btn line blk' href='#/keluar'>Keluar</a>`:'')+`<p class='ver'>${esc(namaToko())} v${VERSI}</p>`;
 }
