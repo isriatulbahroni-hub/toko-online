@@ -1,0 +1,14 @@
+{
+  "name": "Garery Songket Sari Melati",
+  "short_name": "Garery",
+  "description": "Belanja berbagai produk pilihan, stok terlihat langsung, pesanan mudah dipantau.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#ee4d2d",
+  "lang": "id",
+  "icons": [
+    { "src": "ikon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ]
+}
