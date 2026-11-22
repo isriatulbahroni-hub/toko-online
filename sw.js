@@ -1,6 +1,6 @@
 // Service worker sederhana: jaringan dulu, cadangan dari cache saat offline. Tidak menyentuh Supabase, admin, atau /api.
-const V='toko-v5';
-const AKAR=['./','index.html','style.css','header.css','etalase.css','tampilan.css','app.js','akun.js','ulasan.js','voucher.js','varian.js','foto.js','koin.js','header.js','etalase.js','terima.js','kebijakan.js','tampilan.js','pusat.js','config.js'];
+const V='toko-v6';
+const AKAR=['./','index.html','style.css','header.css','etalase.css','tampilan.css','layanan.css','app.js','akun.js','ulasan.js','voucher.js','varian.js','foto.js','koin.js','header.js','etalase.js','terima.js','kebijakan.js','tampilan.js','pusat.js','layanan.js','config.js'];
 self.addEventListener('install',e=>{e.waitUntil(caches.open(V).then(c=>c.addAll(AKAR)).then(()=>self.skipWaiting()))});
 self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(ks=>Promise.all(ks.filter(k=>k!==V).map(k=>caches.delete(k)))).then(()=>self.clients.claim()))});
 self.addEventListener('fetch',e=>{
