@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang='id'><head><meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1'><meta name='robots' content='noindex'><title>Admin: Voucher dan Varian</title>
+<link rel='stylesheet' href='style.css'>
+<style>main{max-width:720px;margin:auto;padding:1rem}table{width:100%;border-collapse:collapse}td,th{padding:.4rem;border-bottom:1px solid #eee;text-align:left;font-size:.9rem}.r{display:flex;flex-wrap:wrap;gap:.4rem}.r input,.r select{flex:1;min-width:110px}td input{width:6rem}.x{overflow-x:auto}</style></head><body>
+<main id='m'><p class='msg'>Memuat...</p></main>
+<script src='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js'></script>
+<script src='config.js'></script>
+<script>
+const C=window.CFG||{},$=s=>document.querySelector(s),m=$('#m'),db=supabase.createClient(C.SUPABASE_URL,C.SUPABASE_ANON_KEY);
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const rp=n=>'Rp'+Number(n).toLocaleString('id-ID');
+let tab='v',PID='';
+const keluar=async()=>{await db.auth.signOut();init()};
+const gagal=e=>{$('#c').innerHTML=`<p class='msg'>Gagal: ${esc(e.message)}</p>`};
+function login(){
+ m.innerHTML=`<form id='lf' class='fm box'><h2>Masuk penjual</h2><input name='e' type='email' placeholder='Email' required><input name='p' type='password' placeholder='Kata sandi' required><button>Masuk</button><p id='e'></p></form>`;
+ $('#lf').onsubmit=async ev=>{ev.preventDefault();const f=ev.target,r=await db.auth.signInWithPassword({email:f.elements.e.value.trim(),password:f.elements.p.value});if(r.error){$('#e').textContent=r.error.message;return}init()};
+}
+async function init(){
+ const s=(await db.auth.getSession()).data.session;
+ if(!s)return login();
+ const o=await db.from('sellers').select('id').eq('owner_id',s.user.id).limit(1).maybeSingle();
+ if(!o.data){m.innerHTML=`<p class='msg'>Akun ini bukan penjual. <a href='#' id='k'>Keluar</a></p>`;$('#k').onclick=e=>{e.preventDefault();keluar()};return}
+ m.innerHTML=`<p><a href='admin.html'>&larr; Admin utama</a> | <a href='#' id='k'>Keluar</a></p><div class='chips'><button data-t='v'>Voucher</button><button data-t='r'>Varian produk</button></div><div id='c'></div>`;
+ $('#k').onclick=e=>{e.preventDefault();keluar()};
+ m.querySelector('.chips').onclick=e=>{const b=e.target.closest('button');if(b){tab=b.dataset.t;tampil()}};
+ m.onclick=aksi;
+ tampil();
+}
+function tampil(){
+ m.querySelectorAll('.chips button').forEach(b=>b.classList.toggle('on',b.dataset.t===tab));
+ (tab==='v'?voucherView:varianView)().catch(gagal);
+}
+async function voucherView(){
+ const r=await db.from('voucher').select('*').order('created_at',{ascending:false});
+ if(r.error)return gagal(r.error);
+ const baris=r.data.map(x=>`<tr data-id='${x.id}'><td><b>${esc(x.kode)}</b></td><td>${x.jenis==='persen'?x.nilai+'%':rp(x.nilai)}${x.maks_potongan?'<br><small>maks '+rp(x.maks_potongan)+'</small>':''}</td><td>${rp(x.min_belanja)}</td><td>${x.terpakai}/${x.kuota||'tak terbatas'}</td><td>${x.berlaku_sampai?new Date(x.berlaku_sampai).toLocaleDateString('id-ID'):'-'}</td><td><button class='line sm' data-a='tv' data-on='${x.aktif}'>${x.aktif?'Aktif':'Mati'}</button> <button class='line sm' data-a='hv'>Hapus</button></td></tr>`).join('');
+ $('#c').innerHTML=`<form id='fv' class='box fm'><h3>Tambah voucher</h3><div class='r'><input name='k' placeholder='Kode (mis. HEMAT10)' maxlength='30' required><select name='j'><option value='persen'>Persen (%)</option><option value='nominal'>Nominal (Rp)</option></select><input name='n' type='number' min='1' placeholder='Nilai' required></div><div class='r'><input name='mb' type='number' min='0' placeholder='Min. belanja (Rp)'><input name='mp' type='number' min='1' placeholder='Maks. potongan (Rp)'><input name='q' type='number' min='1' placeholder='Kuota'></div><label>Berlaku sampai (opsional)<input name='t' type='date'></label><button>Simpan</button><p id='e'></p></form>`+(r.data.length?`<div class='box x'><table><tr><th>Kode</th><th>Potongan</th><th>Min.</th><th>Terpakai</th><th>Sampai</th><th></th></tr>${baris}</table></div>`:`<p class='msg'>Belum ada voucher.</p>`);
+ $('#fv').onsubmit=async ev=>{
+  ev.preventDefault();const el=ev.target.elements;
+  const w=await db.from('voucher').insert({kode:el.k.value.trim().toUpperCase(),jenis:el.j.value,nilai:+el.n.value,min_belanja:+el.mb.value||0,maks_potongan:+el.mp.value||null,kuota:+el.q.value||null,berlaku_sampai:el.t.value?new Date(el.t.value+'T23:59:59').toISOString():null});
+  if(w.error){$('#e').textContent=w.error.message;return}
+  tampil();
+ };
+}
+async function varianView(){
+ const p=await db.from('products').select('id,name,stock').order('name');
+ if(p.error)return gagal(p.error);
+ if(!p.data.length){$('#c').innerHTML=`<p class='msg'>Belum ada produk.</p>`;return}
+ if(!p.data.some(x=>x.id===PID))PID=p.data[0].id;
+ const v=await db.from('varian').select('*').eq('product_id',PID).order('urut').order('nama');
+ if(v.error)return gagal(v.error);
+ const baris=v.data.map(x=>`<tr data-id='${x.id}'><td>${esc(x.nama)}</td><td><input type='number' min='1' value='${x.harga||''}' placeholder='harga produk' data-f='h'></td><td><input type='number' min='0' value='${x.stok}' data-f='s'></td><td><button class='line sm' data-a='sv'>Simpan</button> <button class='line sm' data-a='hv2'>Hapus</button></td></tr>`).join('');
+ $('#c').innerHTML=`<div class='box fm'><select id='pp' aria-label='Produk'>${p.data.map(x=>`<option value='${x.id}'${x.id===PID?' selected':''}>${esc(x.name)}</option>`).join('')}</select><small>Jika produk punya varian, stok produk otomatis = jumlah stok semua varian.</small></div><form id='fr' class='box fm'><h3>Tambah varian</h3><div class='r'><input name='n' placeholder='Nama (mis. Merah / L)' maxlength='60' required><input name='h' type='number' min='1' placeholder='Harga (kosong = harga produk)'><input name='s' type='number' min='0' placeholder='Stok' required></div><button>Simpan</button><p id='e'></p></form>`+(v.data.length?`<div class='box x'><table><tr><th>Varian</th><th>Harga</th><th>Stok</th><th></th></tr>${baris}</table></div>`:`<p class='msg'>Produk ini belum punya varian.</p>`);
+ $('#pp').onchange=ev=>{PID=ev.target.value;tampil()};
+ $('#fr').onsubmit=async ev=>{
+  ev.preventDefault();const el=ev.target.elements;
+  const w=await db.from('varian').insert({product_id:PID,nama:el.n.value.trim(),harga:+el.h.value||null,stok:+el.s.value});
+  if(w.error){$('#e').textContent=w.error.message;return}
+  tampil();
+ };
+}
+async function aksi(ev){
+ const b=ev.target.closest('button[data-a]');if(!b)return;
+ const tr=b.closest('tr'),id=tr&&tr.dataset.id,a=b.dataset.a;let r;
+ b.disabled=true;
+ if(a==='tv')r=await db.from('voucher').update({aktif:b.dataset.on!=='true'}).eq('id',id);
+ else if(a==='hv'){if(!confirm('Hapus voucher ini?')){b.disabled=false;return}r=await db.from('voucher').delete().eq('id',id)}
+ else if(a==='hv2'){if(!confirm('Hapus varian ini?')){b.disabled=false;return}r=await db.from('varian').delete().eq('id',id)}
+ else if(a==='sv')r=await db.from('varian').update({harga:+tr.querySelector('[data-f=h]').value||null,stok:+tr.querySelector('[data-f=s]').value}).eq('id',id);
+ if(r&&r.error){alert(r.error.message);b.disabled=false;return}
+ tampil();
+}
+init();
+</script></body></html>
