@@ -54,5 +54,11 @@ periksa.forEach(f=>{
  if(/service_role|sb_secret_/.test(t))salah('kata service_role atau sb_secret_ ada di '+f);
 });
 
+// 5. Ikon yang disebut manifest.webmanifest dan index.html harus ada
+try{
+ JSON.parse(baca('manifest.webmanifest')).icons.forEach(i=>{if(!ada(i.src))salah('manifest menyebut ikon '+i.src+' yang tidak ada')});
+}catch(e){salah('manifest.webmanifest tidak bisa dibaca: '+e.message)}
+[...idx.matchAll(/<link rel='apple-touch-icon' href='([^']+)'/g)].forEach(m=>{if(!ada(m[1]))salah('index.html menyebut '+m[1]+' yang tidak ada')});
+
 if(gagal){console.error('\n'+gagal+' masalah ditemukan');process.exit(1)}
 console.log('Semua pemeriksaan lolos ('+js.length+' berkas JS, '+mig.length+' migrasi).');
