@@ -1,12 +1,20 @@
-/* Layanan digital. Dimuat setelah tampilan.css. */
+/* Beranda ringkas dan layanan digital. Dimuat setelah tampilan.css. */
 
-/* Tombol tunggal di beranda */
-.lay{display:flex;align-items:center;gap:12px;padding:10px 12px;text-decoration:none;color:inherit}
-.lay>i{display:grid;place-content:center;flex:none;width:46px;height:46px;border-radius:14px;background:#fff4f0;border:1px solid #fbd9d0;font-size:22px;font-style:normal}
-.lay>span{flex:1;min-width:0}
-.lay b{display:block;font-size:14px}
-.lay small{color:var(--mut)}
-.lay em{font-style:normal;color:var(--mut);font-size:22px}
+/* Kartu ringkasan pesanan dan koin/voucher/favorit dibuat lebih rapat */
+.stat{margin-top:2px}
+.stat b{font-size:15px}
+.dompet{padding:8px 4px}
+.dompet b{font-size:15px}
+
+/* Baris menu tunggal: Pulsa & Tagihan, Semua, kategori. Geser ke samping */
+.mnu{padding:10px 0 8px}
+.mnu-r{display:flex;align-items:flex-start;overflow-x:auto;scrollbar-width:none;padding:0 4px}
+.mnu-r::-webkit-scrollbar{display:none}
+.mnu-r a{flex:0 0 19%;min-width:0;text-align:center;text-decoration:none;font-size:11px;line-height:1.25;padding:0 3px;color:inherit}
+.mnu-r i{display:grid;place-content:center;width:46px;height:46px;margin:0 auto 4px;border-radius:14px;background:#fff4f0;border:1px solid #fbd9d0;font-size:22px;font-style:normal}
+.mnu-r a:first-child i{background:#eaf4ff;border-color:#c5e0f8}
+.mnu-b{width:44px;height:4px;border-radius:2px;background:#eee;margin:8px auto 0;overflow:hidden}
+.mnu-b i{display:block;height:100%;width:40%;background:var(--o);border-radius:2px}
 
 /* Daftar semua layanan */
 .lay-g{display:grid;grid-template-columns:repeat(4,1fr);gap:12px 2px;margin-top:10px}

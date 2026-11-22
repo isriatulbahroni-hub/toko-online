@@ -1,5 +1,6 @@
 // Layanan digital (pulsa, data, PLN, tagihan, e-wallet, game).
-// Beranda hanya menampilkan satu tombol "Pulsa & Tagihan"; semua layanan muncul di halaman #/layanan.
+// Beranda: satu baris ikon yang bisa digeser (Pulsa & Tagihan, Semua, lalu kategori) dalam satu kartu, seperti marketplace.
+// Semua layanan digital muncul di halaman #/layanan.
 // Tahap 1: tampilan dan halaman "segera hadir". Transaksi akan disambung ke Digiflazz lewat fungsi server di folder api/.
 // Dimuat setelah pusat.js. Memakai global dari app.js dan akun.js.
 (()=>{
@@ -17,10 +18,7 @@ const LAY=[
 const ikn=l=>`<a href='#/layanan/${l[0]}'><i>${l[2]}</i>${esc(l[1])}</a>`;
 const judul2=(t,h)=>`<h2 class='hd'><a href='${h||'#/'}' aria-label='Kembali'>&larr;</a>${t}</h2>`;
 
-// Satu tombol di beranda.
-const tombol=()=>`<a class='box lay' href='#/layanan'><i>&#128241;</i><span><b>Pulsa &amp; Tagihan</b><small>Pulsa, paket data, token PLN, e-wallet, dan lainnya</small></span><em>&rsaquo;</em></a>`;
-
-// Semua layanan, tampil setelah tombol ditekan.
+// Semua layanan, tampil setelah Pulsa & Tagihan ditekan.
 function daftarView(){
  return judul2('Pulsa &amp; Tagihan')+`<div class='box'><div class='lay-g'>${LAY.map(ikn).join('')}</div></div>`;
 }
@@ -50,15 +48,38 @@ AKUN.route=async function(h){
  return _r(h);
 };
 
-// Sisipkan tombol di atas ikon kategori (setelah kartu koin/voucher bila pembeli sudah masuk).
+// Satu baris menu: Pulsa & Tagihan di depan, lalu Semua dan kategori toko.
+function menu(kt){
+ const it=[`<a href='#/layanan'><i>&#128241;</i>Pulsa &amp; Tagihan</a>`].concat(Array.from(kt.children).map(a=>a.outerHTML));
+ return `<div class='box mnu'><div class='mnu-r' id='mnur'>${it.join('')}</div><div class='mnu-b'><i id='mnui'></i></div></div>`;
+}
+
+// Penanda posisi geser di bawah baris ikon.
+function bar(){
+ const r=document.getElementById('mnur'),t=document.getElementById('mnui');
+ if(!r||!t)return;
+ const set=()=>{
+  const m=r.scrollWidth-r.clientWidth,w=r.scrollWidth>0?Math.min(100,r.clientWidth/r.scrollWidth*100):100;
+  t.style.width=w+'%';
+  t.style.marginLeft=m>0?(r.scrollLeft/m*(100-w))+'%':'0';
+  t.parentNode.style.visibility=m>0?'visible':'hidden';
+ };
+ r.addEventListener('scroll',set,{passive:true});
+ set();
+}
+
+// Ganti kotak kategori di beranda dengan baris menu tunggal.
 const _bL=beranda;
 beranda=async function(){
  await _bL();
  try{
-  if((location.hash||'#/')!=='#/'||app.querySelector('.lay'))return;
+  if((location.hash||'#/')!=='#/'||app.querySelector('.mnu'))return;
   const kt=app.querySelector('.ikon');
   if(!kt)return;
-  kt.insertAdjacentHTML('beforebegin',tombol());
+  const h=menu(kt);
+  kt.insertAdjacentHTML('beforebegin',h);
+  kt.remove();
+  bar();
  }catch(e){}
 };
 })();
