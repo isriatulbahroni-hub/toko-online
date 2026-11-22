@@ -43,7 +43,7 @@ a{color:var(--acc-b)}
 .nv.on .ni{background:var(--acc-s)}
 .bdg{position:absolute;top:0;left:calc(50% + 4px);min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:var(--acc-b);color:#fff;font-size:11px;font-weight:700;line-height:18px;text-align:center}
 .mark{width:48px;height:48px;border-radius:14px;background:var(--acc);color:#fff;display:grid;place-items:center;margin-bottom:16px;font-weight:800;font-size:20px}
-.mark.s{width:40px;height:40px;border-radius:12px;font-size:18px;margin:0}
+.mark.s{width:40px;height:40px;border-radius:12px;font-size:18px;margin:0;flex:none}
 
 /* kartu dan komponen */
 .card{background:var(--surf);border:1px solid var(--line);border-radius:16px;padding:16px}
@@ -112,25 +112,29 @@ input[type=file]::file-selector-button{margin-right:10px;padding:7px 12px;border
 
 /* ringkasan */
 .dash{display:grid;gap:12px;grid-template-columns:minmax(0,1fr)}
-.hero{display:flex;flex-direction:column;background:var(--deep);color:#fff;border-radius:20px;padding:20px 18px 14px}
+.hero{display:flex;flex-direction:column;background:var(--deep);color:#fff;border-radius:20px;padding:18px 16px 12px}
 .hl{font-size:13px;font-weight:500;color:rgba(255,255,255,.72)}
-.hn{font-size:36px;line-height:1.15;font-weight:800;letter-spacing:-.02em;margin-top:2px;overflow-wrap:anywhere}
+.hn{font-size:32px;line-height:1.15;font-weight:800;letter-spacing:-.02em;margin-top:2px;overflow-wrap:anywhere}
 .hs{font-size:12.5px;color:rgba(255,255,255,.66);margin-top:2px}
-.hc{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-top:22px;font-size:12.5px;color:rgba(255,255,255,.72)}
+.rv{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:14px}
+.rv>div{padding:9px 10px;border-radius:12px;background:rgba(255,255,255,.08)}
+.rv small{display:block;font-size:11.5px;line-height:1.3;color:rgba(255,255,255,.66)}
+.rv b{display:block;margin-top:1px;font-size:15px;font-weight:700;overflow-wrap:anywhere}
+.hc{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-top:16px;font-size:12.5px;color:rgba(255,255,255,.72)}
 .hc b{color:#fff;font-weight:700}
-.bars{--bh:92px;display:flex;align-items:flex-end;gap:8px;margin-top:auto;padding-top:8px}
+.bars{--bh:72px;display:flex;align-items:flex-end;gap:8px;margin-top:auto;padding-top:8px}
 .bc{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;gap:4px}
 .bv{height:14px;font-size:10.5px;font-weight:700;white-space:nowrap}
 .bb{display:block;width:100%;max-width:46px;height:calc(var(--p,0)*var(--bh));min-height:4px;border-radius:8px 8px 3px 3px;background:#ff6a45}
 .bb.z{background:rgba(255,255,255,.16)}
 .bl{margin-top:2px;font-size:11.5px;color:rgba(255,255,255,.62)}
 .bc.now .bl{color:#fff;font-weight:700}
-.tiles{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
-.tile{display:flex;flex-direction:column;align-items:flex-start;gap:10px;padding:14px 12px;text-align:left;border:1px solid var(--line);border-radius:16px;background:#fff}
-.tile:hover{border-color:#d5d9e0}
+.tiles{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.tile{display:flex;align-items:center;gap:10px;min-width:0;padding:12px;text-align:left;border:1px solid var(--line);border-radius:16px;background:#fff}
+button.tile:hover{border-color:#d5d9e0}
 .tile .ti{display:grid;place-items:center;width:34px;height:34px;border-radius:10px;background:#eef0f4;color:var(--mut);flex:none}
-.tile .tx{display:flex;flex-direction:column;gap:4px}
-.tile b{font-size:24px;line-height:1;font-weight:800}
+.tile .tx{display:flex;flex-direction:column;gap:3px;min-width:0}
+.tile b{font-size:22px;line-height:1;font-weight:800}
 .tile small{font-size:12px;line-height:1.25;color:var(--mut)}
 .tile.hot{background:var(--acc-s);border-color:#f8cdc2}
 .tile.hot .ti{background:var(--acc);color:#fff}
@@ -138,6 +142,11 @@ input[type=file]::file-selector-button{margin-right:10px;padding:7px 12px;border
 .lst>*+*{border-top:1px solid var(--line)}
 .li{display:flex;align-items:center;gap:12px;padding:11px 0}
 .li:first-child{padding-top:2px}
+.ev{display:flex;align-items:center;gap:12px;width:100%;padding:10px 0;border:0;background:none;text-align:left}
+.ev:first-child{padding-top:2px}
+.ev .ti{display:grid;place-items:center;width:34px;height:34px;border-radius:10px;background:#eef0f4;color:var(--mut);flex:none}
+.ev b{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ev small{display:block;color:var(--mut);font-size:12.5px}
 .tp{display:flex;align-items:center;gap:12px;padding:10px 0}
 .rk{display:grid;place-items:center;width:26px;height:26px;border-radius:8px;background:#eef0f4;font-size:12.5px;font-weight:700;color:var(--mut);flex:none}
 .tp:first-child .rk{background:var(--acc-s);color:var(--acc-b)}
@@ -224,27 +233,27 @@ dialog.dlg::backdrop{background:rgba(16,24,40,.5)}
  .auth .main{margin-left:0}
  .top{padding:22px max(32px,calc((100% - 1016px)/2)) 14px}
  .tt h1{font-size:24px}
+ #tm{display:none}
  .ib span{display:inline}
  .wrap{padding:6px 32px 48px}
  .bar{bottom:16px}
  .toast{bottom:24px;left:calc(50% + 122px)}
  .auth .toast{left:50%}
  .dash{grid-template-columns:repeat(12,minmax(0,1fr));gap:16px}
- .hero{grid-column:span 8;padding:24px 24px 18px}
- .hn{font-size:44px}
- .bars{--bh:150px;gap:14px}
- .tiles{grid-column:span 4;grid-template-columns:minmax(0,1fr);gap:12px}
- .tile{flex-direction:row;align-items:center;gap:14px;padding:16px}
- .tile .ti{width:42px;height:42px;border-radius:12px}
- .tile b{font-size:26px}
+ .hero{grid-column:span 8;padding:22px 24px 16px}
+ .hn{font-size:40px}
+ .bars{--bh:110px;gap:14px}
+ .tiles{grid-column:span 4;gap:12px}
+ .tile{padding:14px}
  .half{grid-column:span 6}
+ .wide{grid-column:span 12}
  .card{padding:20px}
  .pr{padding:14px 16px}
 }
 @media (min-width:1180px){#lp,#lo2{grid-template-columns:repeat(2,minmax(0,1fr))}}
 </style></head><body class='auth'>
 <div class='main'>
- <header class='top'><div class='tt'><h1 id='jd'>Admin</h1><div id='sj'></div></div><div class='ta' id='ta'></div></header>
+ <header class='top'><span class='mark s' id='tm' aria-hidden='true'></span><div class='tt'><h1 id='jd'>Admin</h1><div id='sj'></div></div><div class='ta' id='ta'></div></header>
  <main id='app' class='wrap'></main>
 </div>
 <nav id='nav' aria-label='Menu utama'></nav>
@@ -256,6 +265,7 @@ const C=window.CFG,$=s=>document.querySelector(s),app=$('#app');
 const rp=n=>'Rp'+Number(n).toLocaleString('id-ID');
 const rpk=n=>{n=Number(n);return n>=1e6?'Rp'+(n/1e6).toLocaleString('id-ID',{maximumFractionDigits:1})+' jt':n>=1e4?'Rp'+Math.round(n/1e3)+' rb':rp(n)};
 const esc=s=>String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/'/g,'&#39;').split(String.fromCharCode(34)).join('&quot;');
+const waktu=t=>{const m=Math.floor((Date.now()-new Date(t))/6e4);if(m<1)return'Baru saja';if(m<60)return m+' menit lalu';const j=Math.floor(m/60);if(j<24)return j+' jam lalu';return Math.floor(j/24)+' hari lalu'};
 const db=supabase.createClient(C.SUPABASE_URL,C.SUPABASE_ANON_KEY);
 const nl=String.fromCharCode(10);
 let seller=null,P=[],CAT=[],O=[],ONGKIR=[],filterP='semua',cariP='',cariO='',jml=20,lastBaru=null,cur='ringkasan',tmToast;
@@ -281,6 +291,7 @@ const I={
  warn:"<path d='M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0ZM12 9v4M12 17h.01'/>",
  check:"<path d='m5 12 5 5L20 7'/>",
  pin:"<path d='M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 0 1 16 0Z'/><circle cx='12' cy='10' r='3'/>",
+ users:"<path d='M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2'/><circle cx='9' cy='7' r='4'/><path d='M23 21v-2a4 4 0 0 0-3-3.9M16 3.1a4 4 0 0 1 0 7.8'/>",
  store:"<path d='m2 7 4.4-4.4A2 2 0 0 1 7.8 2h8.4a2 2 0 0 1 1.4.6L22 7'/><path d='M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8'/><path d='M15 22v-4a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2v4'/><path d='M2 7h20'/><path d='M22 7v3a2 2 0 0 1-2 2 2.7 2.7 0 0 1-1.6-.6 2.7 2.7 0 0 1-3.2 0 2.7 2.7 0 0 1-3.2 0 2.7 2.7 0 0 1-3.2 0A2.7 2.7 0 0 1 4 12a2 2 0 0 1-2-2V7'/>"
 };
 const ic=(n,s)=>`<svg class='ic' width='${s||20}' height='${s||20}' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true'>${I[n]}</svg>`;
@@ -342,6 +353,7 @@ function setNav(t,j){
  document.querySelectorAll('#nav .nv').forEach(b=>{const on=b.dataset.t===t;b.classList.toggle('on',on);if(on)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current')});
  $('#jd').textContent=j||TABS.find(x=>x[0]===t)[1];
  $('#sj').textContent=seller?seller.name:'';
+ $('#tm').textContent=seller?(seller.name||'T').trim().charAt(0).toUpperCase():'';
 }
 function tab(t){
  setNav(t);
@@ -368,26 +380,35 @@ setInterval(cekBaru,30000);
 async function ringkasan(){
  const sejak=new Date(Date.now()-30*864e5).toISOString();
  const[o,p]=await Promise.all([
-  db.from('orders').select('id,status,total,created_at,order_items(name,qty)').eq('seller_id',seller.id).gte('created_at',sejak).limit(1000),
+  db.from('orders').select('id,status,total,created_at,buyer_name,buyer_phone,order_items(name,qty)').eq('seller_id',seller.id).gte('created_at',sejak).order('created_at',{ascending:false}).limit(1000),
   db.from('products').select('*').eq('seller_id',seller.id)]);
  if(o.error||p.error){galat((o.error||p.error).message);return}
  P=p.data;
  const laku=o.data.filter(x=>['dibayar','dikirim','selesai'].includes(x.status));
- const omzet=laku.reduce((s,x)=>s+Number(x.total),0);
+ const jumlah=a=>a.reduce((s,x)=>s+Number(x.total),0);
+ const omzet=jumlah(laku);
  const hit=k=>o.data.filter(x=>x.status===k).length;
- const hari=Array.from({length:7},(_,i)=>{const d=new Date(Date.now()-(6-i)*864e5),k=d.toDateString();return{l:d.toLocaleDateString('id-ID',{weekday:'short'}),v:laku.filter(x=>new Date(x.created_at).toDateString()===k).reduce((s,x)=>s+Number(x.total),0)}});
+ const hariIni=new Date().toDateString(),hr=x=>new Date(x.created_at).toDateString()===hariIni;
+ const omzetHariIni=jumlah(laku.filter(hr)),pesananHariIni=o.data.filter(hr).length;
+ const pembeli=new Set(o.data.map(x=>nomorWA(x.buyer_phone)||String(x.buyer_name||'').trim().toLowerCase()).filter(Boolean)).size;
+ const aktif=P.filter(x=>x.is_active).length;
+ const hari=Array.from({length:7},(_,i)=>{const d=new Date(Date.now()-(6-i)*864e5),k=d.toDateString();return{l:d.toLocaleDateString('id-ID',{weekday:'short'}),v:jumlah(laku.filter(x=>new Date(x.created_at).toDateString()===k))}});
  const maks=Math.max(1,...hari.map(h=>h.v)),pekan=hari.reduce((s,h)=>s+h.v,0);
  const top={};laku.forEach(x=>x.order_items.forEach(i=>{top[i.name]=(top[i.name]||0)+i.qty}));
  const tp=Object.entries(top).sort((a,b)=>b[1]-a[1]).slice(0,5);
  const tipis=P.filter(x=>x.is_active&&x.stock<=5).sort((a,b)=>a.stock-b.stock);
- const tile=(ik,n,lb,f,hot)=>`<button class='tile${hot?' hot':''}' data-a='goto' data-f='${f}'><span class='ti'>${ic(ik,18)}</span><span class='tx'><b>${n}</b><small>${lb}</small></span></button>`;
+ const ikS={baru:'clock',dibayar:'bag',dikirim:'truck',selesai:'check',batal:'warn'};
+ const terbaru=o.data.slice(0,5);
+ const tile=(ik,n,lb,at,hot)=>{const k=hot?' hot':'',h=`<span class='ti'>${ic(ik,18)}</span><span class='tx'><b>${n}</b><small>${lb}</small></span>`;return at?`<button class='tile${k}' ${at}>${h}</button>`:`<div class='tile${k}'>${h}</div>`};
  $('#box').innerHTML=`<div class='dash'>`
-  +`<section class='hero' aria-label='Transaksi'><div class='hl'>Transaksi 30 hari</div><div class='hn'>${rp(omzet)}</div><div class='hs'>${laku.length?'dari '+laku.length+' pesanan terbayar':'Belum ada pesanan terbayar'}</div>`
+  +`<section class='hero' aria-label='Pendapatan'><div class='hl'>Pendapatan 30 hari</div><div class='hn'>${rp(omzet)}</div><div class='hs'>${laku.length?'dari '+laku.length+' pesanan terbayar':'Belum ada pesanan terbayar'}</div>`
+  +`<div class='rv'><div><small>Hari ini</small><b>${rpk(omzetHariIni)}</b></div><div><small>Berhasil</small><b>${laku.length}</b></div><div><small>Dibatalkan</small><b>${hit('batal')}</b></div></div>`
   +`<div class='hc'><span>7 hari terakhir</span><b>${rp(pekan)}</b></div>`
   +`<div class='bars' role='list'>${hari.map((h,i)=>`<div class='bc${i===6?' now':''}' role='listitem' aria-label='${esc(h.l)}: ${rp(h.v)}' title='${rp(h.v)}'><span class='bv'>${h.v?rpk(h.v):''}</span><i class='bb${h.v?'':' z'}' style='--p:${(h.v/maks).toFixed(3)}'></i><span class='bl'>${esc(h.l)}</span></div>`).join('')}</div></section>`
-  +`<div class='tiles'>${tile('bag',o.data.length,'Pesanan 30 hari','semua')}${tile('clock',hit('baru'),'Menunggu bayar','baru',hit('baru')>0)}${tile('truck',hit('dibayar'),'Perlu dikirim','dibayar',hit('dibayar')>0)}</div>`
-  +`<section class='card half'><h2>Produk terlaris</h2><p class='sub'>30 hari terakhir</p>${tp.length?`<div class='lst'>${tp.map((x,i)=>`<div class='tp'><span class='rk'>${i+1}</span><div class='grow'><div class='tpn'><b>${esc(x[0])}</b><span>${x[1]} terjual</span></div><div class='trk'><i style='width:${Math.round(x[1]/tp[0][1]*100)}%'></i></div></div></div>`).join('')}</div>`:`<p class='mut'>Belum ada penjualan dalam 30 hari terakhir.</p>`}</section>`
+  +`<div class='tiles'>${tile('truck',hit('dibayar'),'Perlu dikirim',"data-a='goto' data-f='dibayar'",hit('dibayar')>0)}${tile('clock',hit('baru'),'Menunggu bayar',"data-a='goto' data-f='baru'",hit('baru')>0)}${tile('bag',pesananHariIni,'Pesanan hari ini',"data-a='goto' data-f='semua'")}${tile('bag',o.data.length,'Pesanan 30 hari',"data-a='goto' data-f='semua'")}${tile('box',aktif,'Produk aktif',"data-t='produk'")}${tile('users',pembeli,'Pembeli 30 hari','')}</div>`
+  +`<section class='card wide'><h2>Aktivitas terbaru</h2><p class='sub'>Pesanan terbaru yang masuk</p>${terbaru.length?`<div class='lst'>${terbaru.map(x=>{const s=ST[x.status]||[x.status,'mut'];return `<button class='ev' data-a='goto' data-f='${esc(x.status)}'><span class='ti'>${ic(ikS[x.status]||'bag',18)}</span><span class='grow'><b>${esc(x.buyer_name||'Pembeli')}</b><small>${waktu(x.created_at)} · ${rp(x.total)}</small></span><span class='pill p-${s[1]}'>${s[0]}</span></button>`}).join('')}</div>`:`<p class='mut'>Belum ada pesanan dalam 30 hari terakhir.</p>`}</section>`
   +`<section class='card half'><h2>Stok menipis</h2><p class='sub'>Produk tayang dengan stok 5 atau kurang</p>${tipis.length?`<div class='lst'>${tipis.map(x=>`<div class='li'>${thumb(x,'s')}<div class='grow'><b>${esc(x.name)}</b><div class='tags' style='margin-top:2px'><span class='pill ${x.stock<=0?'p-bad':'p-warn'}'>${x.stock<=0?'Habis':'Stok '+x.stock}</span></div></div><button class='btn sec sm' data-a='edit' data-i='${x.id}'>Ubah</button></div>`).join('')}</div>`:`<p class='ok-t'>${ic('check',18)}Semua stok aman</p>`}</section>`
+  +`<section class='card half'><h2>Produk terlaris</h2><p class='sub'>30 hari terakhir</p>${tp.length?`<div class='lst'>${tp.map((x,i)=>`<div class='tp'><span class='rk'>${i+1}</span><div class='grow'><div class='tpn'><b>${esc(x[0])}</b><span>${x[1]} terjual</span></div><div class='trk'><i style='width:${Math.round(x[1]/tp[0][1]*100)}%'></i></div></div></div>`).join('')}</div>`:`<p class='mut'>Belum ada penjualan dalam 30 hari terakhir.</p>`}</section>`
   +`</div>`;
 }
 
