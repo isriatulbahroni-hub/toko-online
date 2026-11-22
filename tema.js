@@ -1,7 +1,7 @@
 // Warna utama toko (bisa diganti dari admin) dan set ikon garis. Dimuat di <head> supaya warna langsung benar saat halaman tampil.
-// Memasang variabel CSS: --o (utama), --od (gelap), --ot (tint), --ob (tepi tint). Aksen amber tetap.
+// Memasang variabel CSS: --o (utama), --od (gelap), --ot (tint), --ob (tepi tint). Aksen emas tetap.
 (()=>{
-const DEF='#5b3cc4',KEY='tema_warna';
+const DEF='#6b1d3a',KEY='tema_warna2';
 const ok=h=>typeof h==='string'&&/^#[0-9a-f]{6}$/i.test(h);
 const rgb=h=>[1,3,5].map(i=>parseInt(h.slice(i,i+2),16));
 const hex=a=>'#'+a.map(v=>Math.max(0,Math.min(255,Math.round(v))).toString(16).padStart(2,'0')).join('');
@@ -40,6 +40,9 @@ async function muat(){
 const P={
  pulsa:`<rect x='7' y='2.5' width='10' height='19' rx='2'/><path d='M11 18.5h2'/>`,
  semua:`<rect x='4' y='4' width='6.5' height='6.5' rx='1'/><rect x='13.5' y='4' width='6.5' height='6.5' rx='1'/><rect x='4' y='13.5' width='6.5' height='6.5' rx='1'/><rect x='13.5' y='13.5' width='6.5' height='6.5' rx='1'/>`,
+ songket:`<rect x='4' y='4' width='16' height='16' rx='1.5'/><path d='M4 20l2-4 2 4 2-4 2 4 2-4 2 4 2-4 2 4'/><path d='M12 6.5l2.8 3-2.8 3-2.8-3z'/>`,
+ selendang:`<path d='M4 6c3-2.5 5 2.5 8 0s5-2.5 8 0v7c-3-2.5-5 2.5-8 0s-5-2.5-8 0z'/><path d='M6 15.5v4M9 15v4.5M12 15.5v4M15 15v4.5M18 15.5v4'/>`,
+ busana:`<path d='M9 3l3 2.8L15 3l2.5 4.2-2 3.3L19 21H5l3.5-10.5L6.5 7.2z'/>`,
  baju:`<path d='M8 3 3 6l2 4 3-1v11h8V9l3 1 2-4-5-3a4 4 0 0 1-8 0z'/>`,
  tas:`<path d='M5 8h14l-1 12H6z'/><path d='M9 8V6a3 3 0 0 1 6 0v2'/>`,
  sepatu:`<path d='M3 17v-3c0-1.5 1-2.5 2.5-2.5H8l3-3.5 3.5 2.5c1.5 1 4.5 1 6 2.5V17z'/><path d='M3 20h18'/>`,
