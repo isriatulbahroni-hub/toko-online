@@ -1,0 +1,32 @@
+{
+  "id": "/admin.html",
+  "name": "Panel Penjual Garery Songket Sari Melati",
+  "short_name": "Admin Garery",
+  "description": "Kelola produk, pesanan, dan tampilan toko dari HP atau komputer.",
+  "start_url": "/admin.html",
+  "scope": "/admin",
+  "display": "standalone",
+  "background_color": "#01195e",
+  "theme_color": "#01195e",
+  "lang": "id",
+  "icons": [
+    {
+      "src": "ikon-admin-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "ikon-admin-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "ikon-admin-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}
