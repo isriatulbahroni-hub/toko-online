@@ -15,7 +15,7 @@
       ]
     },
     {
-      "source": "/((?!admin\\.html|admin-toko\\.html).*)",
+      "source": "/((?!admin\\.html|admin-toko\\.html|platform\\.html).*)",
       "headers": [
         {
           "key": "Content-Security-Policy-Report-Only",
@@ -24,7 +24,7 @@
       ]
     },
     {
-      "source": "/(admin\\.html|admin-toko\\.html)",
+      "source": "/(admin\\.html|admin-toko\\.html|platform\\.html)",
       "headers": [
         {
           "key": "Content-Security-Policy-Report-Only",
