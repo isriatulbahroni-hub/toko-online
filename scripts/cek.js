@@ -44,7 +44,7 @@ const nomor=[...new Set(mig.map(f=>+f.slice(0,4)))];
 for(let i=1;i<nomor.length;i++)if(nomor[i]!==nomor[i-1]+1)salah('nomor migrasi loncat dari '+nomor[i-1]+' ke '+nomor[i]);
 
 // 4. Kunci rahasia tidak boleh ikut ke repo: hanya JWT dengan role anon yang boleh ada
-const periksa=js.filter(f=>f!=='scripts/cek.js').concat(['index.html','admin.html','admin-toko.html','manifest.webmanifest']);
+const periksa=js.filter(f=>f!=='scripts/cek.js').concat(['index.html','admin.html','admin-toko.html','manifest.webmanifest','manifest-admin.webmanifest']);
 periksa.forEach(f=>{
  if(!ada(f))return;
  const t=baca(f);
@@ -54,11 +54,15 @@ periksa.forEach(f=>{
  if(/service_role|sb_secret_/.test(t))salah('kata service_role atau sb_secret_ ada di '+f);
 });
 
-// 5. Ikon yang disebut manifest.webmanifest dan index.html harus ada
-try{
- JSON.parse(baca('manifest.webmanifest')).icons.forEach(i=>{if(!ada(i.src))salah('manifest menyebut ikon '+i.src+' yang tidak ada')});
-}catch(e){salah('manifest.webmanifest tidak bisa dibaca: '+e.message)}
-[...idx.matchAll(/<link rel='apple-touch-icon' href='([^']+)'/g)].forEach(m=>{if(!ada(m[1]))salah('index.html menyebut '+m[1]+' yang tidak ada')});
+// 5. Ikon yang disebut manifest dan halaman HTML harus ada
+['manifest.webmanifest','manifest-admin.webmanifest'].forEach(mf=>{
+ try{
+  JSON.parse(baca(mf)).icons.forEach(i=>{if(!ada(i.src))salah(mf+' menyebut ikon '+i.src+' yang tidak ada')});
+ }catch(e){salah(mf+' tidak bisa dibaca: '+e.message)}
+});
+['index.html','admin.html','admin-toko.html'].forEach(f=>{
+ [...baca(f).matchAll(/<link rel='(?:apple-touch-icon|icon)' href='([^']+)'/g)].forEach(m=>{if(!m[1].startsWith('data:')&&!ada(m[1]))salah(f+' menyebut '+m[1]+' yang tidak ada')});
+});
 
 if(gagal){console.error('\n'+gagal+' masalah ditemukan');process.exit(1)}
 console.log('Semua pemeriksaan lolos ('+js.length+' berkas JS, '+mig.length+' migrasi).');
