@@ -329,7 +329,8 @@ const ic=(n,s)=>`<svg class='ic' width='${s||20}' height='${s||20}' viewBox='0 0
 const TABS=[['ringkasan','Ringkasan','chart'],['produk','Produk','box'],['pesanan','Pesanan','bag'],['beranda','Beranda','layout'],['atur','Pengaturan','sliders']];
 const SUB={pelanggan:'Pelanggan',laporan:'Laporan penjualan',ulasan:'Ulasan pembeli'};
 const ST={baru:['Menunggu bayar','warn'],dibayar:['Perlu dikirim','acc'],dikirim:['Dikirim','info'],selesai:['Selesai','ok'],batal:['Dibatalkan','mut']};
-const NEXT={baru:['dibayar','batal'],dibayar:['dikirim','batal'],dikirim:['selesai'],selesai:[],batal:[]};
+/* pesanan dikirim menjadi selesai lewat konfirmasi pembeli atau otomatis 7 hari (penjual tidak bisa menyelesaikan sendiri) */
+const NEXT={baru:['dibayar','batal'],dibayar:['dikirim','batal'],dikirim:[],selesai:[],batal:[]};
 const nomorWA=t=>{let d=String(t||'').replace(/[^0-9]/g,'');if(d.startsWith('0'))d='62'+d.slice(1);return d};
 const skel=()=>`<div class='sk' style='height:200px'></div><div class='sk' style='height:92px;margin-top:12px'></div><div class='sk' style='height:150px;margin-top:12px'></div>`;
 const galat=m=>{$('#box').innerHTML=`<div class='card empty'>${ic('warn',28)}${esc(m)}</div>`};
@@ -372,8 +373,8 @@ async function panel(){
  document.body.classList.remove('auth');
  $('#ta').innerHTML=`<a class='ib' href='./' target='_blank' rel='noopener' aria-label='Lihat toko'>${ic('out',18)}<span>Lihat toko</span></a><button class='ib' data-a='keluar' aria-label='Keluar'>${ic('logout',18)}<span>Keluar</span></button>`;
  const r=await db.from('sellers').select('*').eq('owner_id',u.id).maybeSingle();
- if(!r.data){app.innerHTML=`<div class='card empty'>${ic('warn',28)}Akun ${esc(u.email)} belum ditautkan ke toko.</div>`;return}
- seller=r.data;if(window.TEMA)TEMA.muat();CAT=(await db.from('categories').select('id,nama').order('urut')).data||[];
+ if(!r.data){app.innerHTML=`<div class='card empty'>${ic('warn',28)}Akun ${esc(u.email)} belum punya toko. <a href='./#/mulai-jualan'>Mulai jualan</a></div>`;return}
+ seller=r.data;if(window.TEMA)TEMA.muat();CAT=(await db.from('categories').select('id,nama').eq('seller_id',seller.id).order('urut')).data||[];
  bangunNav();app.innerHTML=`<div id='warn'></div><div id='box'></div>`;tab('ringkasan');
 }
 function bangunNav(){
@@ -388,7 +389,7 @@ function setNav(t,j){
 }
 function tab(t){
  setNav(SUB[t]?'ringkasan':t,SUB[t]);
- $('#warn').innerHTML=seller.is_active===false?`<div class='note'>${ic('warn',18)}<span>Toko belum aktif, jadi produk tidak tampil ke pembeli. Di Supabase, ubah kolom is_active pada tabel sellers menjadi true.</span></div>`:'';
+ $('#warn').innerHTML=seller.is_active===false?`<div class='note'>${ic('warn',18)}<span>Toko Anda sedang dinonaktifkan oleh admin platform, jadi produk tidak tampil ke pembeli.${seller.alasan_nonaktif?' Alasan: '+esc(seller.alasan_nonaktif)+'.':''} Hubungi admin platform bila ini keliru.</span></div>`:'';
  $('#box').innerHTML=skel();
  window.scrollTo(0,0);
  ({ringkasan,produk,pesanan,beranda,atur,pelanggan,laporan,ulasan:ulasanView})[t]();
@@ -515,9 +516,9 @@ function unduhCSV(){
  setTimeout(()=>URL.revokeObjectURL(u),1000);toast('Laporan diunduh');
 }
 
-/* ulasan pembeli: penjual dapat menghapus ulasan pada produk tokonya */
+/* ulasan pembeli: hanya ulasan untuk produk toko ini; penjual dapat menghapusnya */
 async function ulasanView(){
- const r=await db.from('ulasan').select('id,nama,rating,isi,created_at,products(name)').order('created_at',{ascending:false}).limit(100);
+ const r=await db.from('ulasan').select('id,nama,rating,isi,created_at,products!inner(name,seller_id)').eq('products.seller_id',seller.id).order('created_at',{ascending:false}).limit(100);
  if(r.error){galat(r.error.message);return}
  ULS=r.data;
  const n=ULS.length,avg=n?(ULS.reduce((s,x)=>s+x.rating,0)/n).toFixed(1):'0';
@@ -535,7 +536,7 @@ async function ulasanView(){
 function daftarProduk(){
  const q=cariP.toLowerCase(),ps=P.filter(p=>!q||p.name.toLowerCase().includes(q));
  $('#jp').textContent=ps.length+' produk';
- $('#lp').innerHTML=ps.length?ps.map(p=>`<div class='card pr'>${thumb(p)}<div class='pi'><b>${esc(p.name)}</b><span style='font-weight:700'>${rp(p.price)}</span>${p.harga_coret?`<s>${rp(p.harga_coret)}</s>`:''}<div class='tags'><span class='pill ${p.stock<=0?'p-bad':p.stock<=5?'p-warn':'p-mut'}'>${p.stock<=0?'Habis':'Stok '+p.stock}</span><span class='pill ${p.is_active?'p-ok':'p-mut'}'>${p.is_active?'Tayang':'Disembunyikan'}</span></div></div><div class='pa'><button class='btn sec sm' data-a='tog' data-i='${p.id}'>${p.is_active?'Sembunyikan':'Tayangkan'}</button><button class='btn sm' data-a='edit' data-i='${p.id}'>${ic('edit',15)}Ubah</button></div></div>`).join(''):`<div class='card empty'>${ic('box',30)}${q?'Tidak ada produk yang cocok dengan pencarian.':'Belum ada produk. Tambahkan produk pertama Anda.'}</div>`;
+ $('#lp').innerHTML=ps.length?ps.map(p=>`<div class='card pr'>${thumb(p)}<div class='pi'><b>${esc(p.name)}</b><span style='font-weight:700'>${rp(p.price)}</span>${p.harga_coret?`<s>${rp(p.harga_coret)}</s>`:''}<div class='tags'><span class='pill ${p.stock<=0?'p-bad':p.stock<=5?'p-warn':'p-mut'}'>${p.stock<=0?'Habis':'Stok '+p.stock}</span><span class='pill ${p.is_active?'p-ok':'p-mut'}'>${p.is_active?'Tayang':'Disembunyikan'}</span>${p.diblokir?`<span class='pill p-bad'>Diblokir admin</span>`:''}</div></div><div class='pa'><button class='btn sec sm' data-a='tog' data-i='${p.id}'${p.diblokir?' disabled':''}>${p.is_active?'Sembunyikan':'Tayangkan'}</button><button class='btn sm' data-a='edit' data-i='${p.id}'>${ic('edit',15)}Ubah</button></div></div>`).join(''):`<div class='card empty'>${ic('box',30)}${q?'Tidak ada produk yang cocok dengan pencarian.':'Belum ada produk. Tambahkan produk pertama Anda.'}</div>`;
 }
 async function produk(){
  const r=await db.from('products').select('*').eq('seller_id',seller.id).order('created_at',{ascending:false});
@@ -547,15 +548,15 @@ async function produk(){
 }
 function form(p){
  p=p||{};setNav('produk',p.id?'Ubah produk':'Produk baru');window.scrollTo(0,0);
- $('#box').innerHTML=`<form id='pf'><div class='card'><div class='fg'>`
+ $('#box').innerHTML=`<form id='pf'>${p.diblokir?`<div class='note'>${ic('warn',18)}<span>Produk ini diblokir admin platform dan tidak bisa ditayangkan.${p.alasan_blokir?' Alasan: '+esc(p.alasan_blokir)+'.':''} Hubungi admin platform bila ini keliru.</span></div>`:''}<div class='card'><div class='fg'>`
   +`<label class='fl full'>Nama produk<input name='name' value='${esc(p.name)}' required></label>`
   +`<label class='fl full'>Deskripsi<textarea name='description' rows='4'>${esc(p.description)}</textarea></label>`
   +`<label class='fl'>Harga (Rp)<input name='price' type='number' min='0' inputmode='numeric' value='${p.price==null?'':p.price}' required></label>`
   +`<label class='fl'>Harga coret (opsional)<input name='harga_coret' type='number' min='0' inputmode='numeric' value='${p.harga_coret==null?'':p.harga_coret}'><span class='hint'>Harga sebelum diskon.</span></label>`
   +`<label class='fl'>Stok<input name='stock' type='number' min='0' inputmode='numeric' value='${p.stock==null?0:p.stock}' required></label>`
-  +`<label class='fl'>Kategori<select name='category_id'><option value=''>Tanpa kategori</option>${CAT.map(k=>`<option value='${k.id}'${k.id===p.category_id?' selected':''}>${esc(k.nama)}</option>`).join('')}</select></label>`
+  +`<label class='fl'>Kategori<select name='category_id'><option value=''>Tanpa kategori</option>${CAT.map(k=>`<option value='${k.id}'${k.id===p.category_id?' selected':''}>${esc(k.nama)}</option>`).join('')}</select>${CAT.length?'':`<span class='hint'>Buat kategori di Pengaturan.</span>`}</label>`
   +`<div class='fl full'>Foto produk<div class='up'><span class='th xl' id='pvw'>${p.image_url?`<img src='${esc(p.image_url)}' alt=''>`:ic('img',28)}</span><div class='grow'><input name='file' type='file' accept='image/*' aria-label='Foto produk'><span class='hint'>Foto otomatis diperkecil agar etalase cepat dibuka.</span></div></div></div>`
-  +`<div class='full'><label class='sw'><input type='checkbox' name='is_active' ${p.is_active===false?'':'checked'}><i></i>Tayang di etalase</label></div>`
+  +`<div class='full'><label class='sw'><input type='checkbox' name='is_active' ${p.diblokir?'disabled':(p.is_active===false?'':'checked')}><i></i>Tayang di etalase</label></div>`
   +`</div></div><div class='bar'><button class='btn'>Simpan produk</button><button type='button' class='btn sec' data-a='batal'>Batal</button><span class='mg' role='status'></span></div></form>`;
  const el=$('#pf').elements;
  /* produk bervarian: stok selalu dihitung dari varian (database juga menjaganya) */
@@ -575,7 +576,7 @@ function form(p){
     const up=await db.storage.from('produk').upload(path,blob,{contentType:'image/jpeg'});if(up.error)throw up.error;
     url=db.storage.from('produk').getPublicUrl(path).data.publicUrl;
    }
-   const row={seller_id:seller.id,name:el['name'].value.trim(),description:el['description'].value,price:+el['price'].value,stock:+el['stock'].value,harga_coret:el['harga_coret'].value?+el['harga_coret'].value:null,category_id:el['category_id'].value||null,image_url:url,is_active:el['is_active'].checked};
+   const row={seller_id:seller.id,name:el['name'].value.trim(),description:el['description'].value,price:+el['price'].value,stock:+el['stock'].value,harga_coret:el['harga_coret'].value?+el['harga_coret'].value:null,category_id:el['category_id'].value||null,image_url:url,is_active:p.diblokir?false:el['is_active'].checked};
    const r=p.id?await db.from('products').update(row).eq('id',p.id):await db.from('products').insert(row);
    if(r.error)throw r.error;
    toast('Produk tersimpan');tab('produk');
@@ -595,6 +596,7 @@ function kartuPesanan(o){
   +(o.resi?`<div class='oa'>${ic('truck',16)}<span>${esc(o.kurir||'Kurir')}, resi ${esc(o.resi)}</span></div>`:'')
   +`<div class='act'><a class='btn sec sm' href='https://wa.me/${nomorWA(o.buyer_phone)}' target='_blank' rel='noopener'>${ic('chat',16)}${esc(o.buyer_phone)}</a>`
   +(o.bukti_path?`<button class='btn sec sm' data-a='bukti' data-p='${esc(o.bukti_path)}'>${ic('eye',16)}Bukti bayar</button>`:(o.status==='baru'?`<span class='pill p-mut'>Belum ada bukti bayar</span>`:''))
+  +(o.status==='dikirim'?`<span class='pill p-mut'>Selesai setelah pembeli konfirmasi atau otomatis 7 hari</span>`:'')
   +(next.length?`<select data-o='${o.id}' aria-label='Ubah status pesanan'><option value=''>Ubah status</option>${next.map(x=>`<option value='${x}'>${ST[x][0]}</option>`).join('')}</select>`:'')
   +`</div></article>`;
 }
@@ -637,7 +639,7 @@ function beranda(){
 
 /* pengaturan */
 async function atur(){
- const[o,k,st]=await Promise.all([db.from('ongkir').select('*').order('urut').order('wilayah'),db.from('categories').select('*').order('urut').order('nama'),db.rpc('status_notif_telegram')]);
+ const[o,k,st]=await Promise.all([db.from('ongkir').select('*').eq('seller_id',seller.id).order('urut').order('wilayah'),db.from('categories').select('*').eq('seller_id',seller.id).order('urut').order('nama'),db.rpc('status_notif_telegram')]);
  ONGKIR=o.data||[];CAT=k.data||[];
  const tg=st.error?null:((st.data&&st.data[0])||{});
  const tgForm=tg===null
@@ -658,10 +660,10 @@ async function atur(){
   const r=await db.rpc('simpan_notif_telegram',{p_token:el['tk'].value.trim(),p_chat:el['ci'].value.trim(),p_aktif:el['ak'].checked});
   if(r.error){pesan(f,'Gagal: '+r.error.message,1);toast(r.error.message,1)}else{pesan(f,'Tersimpan. Coba Kirim tes.');el['tk'].value=''}};
  $('#of').onsubmit=async e=>{e.preventDefault();const el=e.target.elements;
-  const r=await db.from('ongkir').insert({wilayah:el['w'].value.trim(),tarif:+el['t'].value});
+  const r=await db.from('ongkir').insert({seller_id:seller.id,wilayah:el['w'].value.trim(),tarif:+el['t'].value});
   if(r.error)toast(r.error.message,1);else toast('Wilayah ditambahkan');atur()};
  $('#kf').onsubmit=async e=>{e.preventDefault();
-  const r=await db.from('categories').insert({nama:e.target.elements['n'].value.trim(),urut:CAT.length+1});
+  const r=await db.from('categories').insert({seller_id:seller.id,nama:e.target.elements['n'].value.trim(),urut:CAT.length+1});
   if(r.error)toast(r.error.message,1);else toast('Kategori ditambahkan');atur()};
 }
 
