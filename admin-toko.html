@@ -24,7 +24,8 @@ async function init(){
  const s=(await db.auth.getSession()).data.session;
  if(!s)return login();
  const o=await db.from('sellers').select('id').eq('owner_id',s.user.id).limit(1).maybeSingle();
- if(!o.data){m.innerHTML=`<p class='msg'>Akun ini bukan penjual. <a href='#' id='k'>Keluar</a></p>`;$('#k').onclick=e=>{e.preventDefault();keluar()};return}
+ if(!o.data){m.innerHTML=`<p class='msg'>Akun ini belum punya toko. <a href='./#/mulai-jualan'>Mulai jualan</a> | <a href='#' id='k'>Keluar</a></p>`;$('#k').onclick=e=>{e.preventDefault();keluar()};return}
+ SID=o.data.id;
  m.innerHTML=`<p><a href='admin.html'>&larr; Admin utama</a> | <a href='#' id='k'>Keluar</a></p><div class='chips'><button data-t='v'>Voucher</button><button data-t='r'>Varian produk</button><button data-t='f'>Foto produk</button><button data-t='s'>Flash sale</button><button data-t='w'>Warna toko</button></div><div id='c'></div>`;
  $('#k').onclick=e=>{e.preventDefault();keluar()};
  m.querySelector('.chips').onclick=e=>{const b=e.target.closest('button');if(b){tab=b.dataset.t;tampil()}};
@@ -36,13 +37,13 @@ function tampil(){
  ({v:voucherView,r:varianView,f:fotoView,s:flashView,w:warnaView}[tab]||voucherView)().catch(gagal);
 }
 async function voucherView(){
- const r=await db.from('voucher').select('*').order('created_at',{ascending:false});
+ const r=await db.from('voucher').select('*').eq('seller_id',SID).order('created_at',{ascending:false});
  if(r.error)return gagal(r.error);
  const baris=r.data.map(x=>`<tr data-id='${x.id}'><td><b>${esc(x.kode)}</b></td><td>${x.jenis==='persen'?x.nilai+'%':rp(x.nilai)}${x.maks_potongan?'<br><small>maks '+rp(x.maks_potongan)+'</small>':''}</td><td>${rp(x.min_belanja)}</td><td>${x.terpakai}/${x.kuota||'tak terbatas'}</td><td>${x.berlaku_sampai?new Date(x.berlaku_sampai).toLocaleDateString('id-ID'):'-'}</td><td>${'publik' in x?`<button class='line sm' data-a='pv' data-on='${x.publik}'>${x.publik?'Publik':'Privat'}</button> `:''}<button class='line sm' data-a='tv' data-on='${x.aktif}'>${x.aktif?'Aktif':'Mati'}</button> <button class='line sm' data-a='hv'>Hapus</button></td></tr>`).join('');
  $('#c').innerHTML=`<form id='fv' class='box fm'><h3>Tambah voucher</h3><div class='r'><input name='k' placeholder='Kode (mis. HEMAT10)' maxlength='30' required><select name='j'><option value='persen'>Persen (%)</option><option value='nominal'>Nominal (Rp)</option></select><input name='n' type='number' min='1' placeholder='Nilai' required></div><div class='r'><input name='mb' type='number' min='0' placeholder='Min. belanja (Rp)'><input name='mp' type='number' min='1' placeholder='Maks. potongan (Rp)'><input name='q' type='number' min='1' placeholder='Kuota'></div><label>Berlaku sampai (opsional)<input name='t' type='date'></label><label><input type='checkbox' name='pb' style='width:auto'> Tampilkan di Pusat Voucher (bisa diklaim semua pembeli)</label><small>Voucher publik butuh migrasi 0017. Voucher privat tetap bisa dipakai lewat kodenya.</small><button>Simpan</button><p id='e'></p></form>`+(r.data.length?`<div class='box x'><table><tr><th>Kode</th><th>Potongan</th><th>Min.</th><th>Terpakai</th><th>Sampai</th><th></th></tr>${baris}</table></div>`:`<p class='msg'>Belum ada voucher.</p>`);
  $('#fv').onsubmit=async ev=>{
   ev.preventDefault();const el=ev.target.elements;
-  const row={kode:el.k.value.trim().toUpperCase(),jenis:el.j.value,nilai:+el.n.value,min_belanja:+el.mb.value||0,maks_potongan:+el.mp.value||null,kuota:+el.q.value||null,berlaku_sampai:el.t.value?new Date(el.t.value+'T23:59:59').toISOString():null};
+  const row={seller_id:SID,kode:el.k.value.trim().toUpperCase(),jenis:el.j.value,nilai:+el.n.value,min_belanja:+el.mb.value||0,maks_potongan:+el.mp.value||null,kuota:+el.q.value||null,berlaku_sampai:el.t.value?new Date(el.t.value+'T23:59:59').toISOString():null};
   if(el.pb.checked)row.publik=true;
   const w=await db.from('voucher').insert(row);
   if(w.error){$('#e').textContent=w.error.message;return}
@@ -50,7 +51,7 @@ async function voucherView(){
  };
 }
 async function varianView(){
- const p=await db.from('products').select('id,name,stock').order('name');
+ const p=await db.from('products').select('id,name,stock').eq('seller_id',SID).order('name');
  if(p.error)return gagal(p.error);
  if(!p.data.length){$('#c').innerHTML=`<p class='msg'>Belum ada produk.</p>`;return}
  if(!p.data.some(x=>x.id===PID))PID=p.data[0].id;
@@ -67,7 +68,7 @@ async function varianView(){
  };
 }
 async function fotoView(){
- const p=await db.from('products').select('id,name,image_url,seller_id').order('name');
+ const p=await db.from('products').select('id,name,image_url,seller_id').eq('seller_id',SID).order('name');
  if(p.error)return gagal(p.error);
  if(!p.data.length){$('#c').innerHTML=`<p class='msg'>Belum ada produk.</p>`;return}
  if(!p.data.some(x=>x.id===PID))PID=p.data[0].id;
@@ -95,7 +96,7 @@ async function fotoView(){
 }
 function hariIni(d){const x=new Date(d.getTime()-d.getTimezoneOffset()*60000);return x.toISOString().slice(0,16)}
 async function flashView(){
- const p=await db.from('products').select('id,name,price,flash_persen,flash_mulai,flash_selesai').order('name');
+ const p=await db.from('products').select('id,name,price,flash_persen,flash_mulai,flash_selesai').eq('seller_id',SID).order('name');
  if(p.error)return gagal(p.error);
  if(!p.data.length){$('#c').innerHTML=`<p class='msg'>Belum ada produk.</p>`;return}
  if(!p.data.some(x=>x.id===PID))PID=p.data[0].id;
@@ -119,9 +120,8 @@ async function flashView(){
 /* Warna utama toko: disimpan di kolom sellers.warna (migrasi 0018). Etalase membacanya lewat tema.js. */
 const SW=[['Violet','#5b3cc4'],['Biru','#1d4ed8'],['Hijau tosca','#0f766e'],['Merah muda','#be185d'],['Marun','#9f1239'],['Cokelat','#92400e'],['Abu gelap','#334155']];
 async function warnaView(){
- const o=await db.from('sellers').select('id,warna').limit(1).maybeSingle();
+ const o=await db.from('sellers').select('id,warna').eq('id',SID).maybeSingle();
  if(o.error){$('#c').innerHTML=`<p class='msg'>Kolom warna belum ada. Jalankan migrasi 0018_warna_toko.sql di Supabase, lalu muat ulang halaman ini.</p>`;return}
- SID=o.data.id;
  const cur=TEMA.ok(o.data.warna)?o.data.warna.toLowerCase():TEMA.DEF;
  $('#c').innerHTML=`<form id='fw' class='box fm'><h3>Warna utama toko</h3><small>Dipakai untuk header, tombol, harga, dan ikon di etalase. Aksen kuning tetap. Halaman ini ikut berubah sebagai contoh sebelum disimpan.</small><div class='sws'>${SW.map(x=>`<button type='button' data-w='${x[1]}' style='background:${x[1]}' aria-label='${x[0]}' aria-pressed='false'></button>`).join('')}</div><label>Pilih warna<input name='c' type='color' value='${cur}' style='height:44px;padding:2px'></label><label>Kode warna<input name='h' value='${cur}' maxlength='7' autocomplete='off'></label><small id='nt'></small><div class='box' style='padding:0;overflow:hidden'><div style='background:var(--o);color:#fff;padding:.7rem;display:flex;gap:.5rem;align-items:center;justify-content:space-between'><span>Cari produk</span><span style='background:#f5b301;color:#2b1b00;border-radius:8px;padding:.2rem .7rem;font-weight:700'>Cari</span></div><div style='padding:.7rem'><b class='price'>Rp150.000</b> <button type='button'>Beli</button></div></div><button>Simpan warna</button> <button type='button' class='line' data-a='wr'>Kembali ke bawaan</button><p id='e'></p></form>`;
  const fw=$('#fw'),el=fw.elements;
